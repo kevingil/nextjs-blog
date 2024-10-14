@@ -1,12 +1,12 @@
 'use client';
 
-import { Button } from '../../../../components/ui/button';
-import { Input } from '../../../../components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/card';
-import { Label } from '../../../../components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Lock, Trash2, Loader2 } from 'lucide-react';
 import { startTransition, useActionState } from 'react';
-import { updatePassword, deleteAccount } from '../../../../actions/auth';
+import { updatePassword, deleteAccount } from '@/actions/auth';
 
 type ActionState = {
   error?: string;

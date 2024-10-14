@@ -9,8 +9,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "../ui/sheet";
-import { Separator } from "../ui/separator";
+} from "./ui/sheet";
+import { Separator } from "./ui/separator";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -18,7 +18,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-} from "../ui/navigation-menu";
+} from "./ui/navigation-menu";
 
 import { useUser } from '@/lib/auth';
 import { signOut } from '@/actions/auth';
@@ -35,7 +35,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Router, { useRouter } from "next/navigation";
 import Image from "next/image";
-import { ToggleTheme } from "./toogle-theme";
+import { ToggleTheme } from "./home/toogle-theme";
 
 interface RouteProps {
   href: string;
@@ -79,7 +79,8 @@ export const Navbar = () => {
 
   }
   return (
-    <header className="border shadow backdrop-blur-md w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-5 mx-auto sticky border border-secondary z-50 rounded-2xl flex justify-between items-center p-2 bg-card/50">
+    <header className="border shadow backdrop-blur-md w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-2 mx-auto 
+      sticky border border-secondary z-50 rounded-2xl flex justify-between items-center p-2 bg-card/50 mb-12">
       <Link href="/" className="font-bold text-lg flex items-center">
         <Terminal className="bg-gradient-to-tr border-secondary from-primary via-primary/70 to-primary rounded-lg w-9 h-9 mr-2 border text-white" />
         {title}

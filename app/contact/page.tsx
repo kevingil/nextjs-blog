@@ -1,6 +1,6 @@
-import { CommunitySection } from "@/components/layout/sections/community";
+import { CommunitySection } from "@/components/layout/home/community";
 import { FeaturesSection } from "@/components/layout/sections/features";
-import { ServicesSection } from "@/components/layout/sections/services";
+import { ServicesSection } from "@/components/home/sections/services";
 
 
 

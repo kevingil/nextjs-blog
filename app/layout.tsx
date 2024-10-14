@@ -3,9 +3,9 @@ import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
 import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/db/queries';
-import { FooterSection } from "@/components/layout/sections/footer";
-import { Navbar } from "@/components/layout/navbar";
-import { ThemeProvider } from "@/components/layout/theme-provider";
+import { FooterSection } from "@/components/home/sections/footer";
+import { Navbar } from "@/components/navbar";
+import { ThemeProvider } from "@/components/home/theme-provider";
 
 export const metadata: Metadata = {
   title: 'Kevin Gil',

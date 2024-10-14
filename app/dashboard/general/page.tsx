@@ -1,13 +1,13 @@
 'use client';
 
 import { startTransition, useActionState } from 'react';
-import { Button } from '../../../../components/ui/button';
-import { Input } from '../../../../components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '../../../../components/ui/card';
-import { Label } from '../../../../components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
-import { useUser } from '../../../../lib/auth';
-import { updateAccount } from '../../../../actions/auth';
+import { useUser } from '@/lib/auth';
+import { updateAccount } from '@/actions/auth';
 
 type ActionState = {
   error?: string;
@@ -38,7 +38,7 @@ export default function GeneralPage() {
   return (
     <section className="flex-1 p-4 lg:p-8">
       <h1 className="text-lg lg:text-2xl font-medium text-gray-900 dark:text-white mb-6">
-        Uploads
+        General Settings
       </h1>
 
       <Card>

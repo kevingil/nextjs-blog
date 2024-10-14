@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useActionState } from 'react';
-import { User } from '../../../db/schema';
+import { User } from '@/db/schema';
 
 type ActionState = {
   error?: string;
