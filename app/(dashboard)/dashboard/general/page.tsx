@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../../../components
 import { Label } from '../../../../components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '../../../../lib/auth';
-import { updateAccount } from '../../../(login)/actions';
+import { updateAccount } from '../../../../actions/auth';
 
 type ActionState = {
   error?: string;

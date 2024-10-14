@@ -1,9 +1,8 @@
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
-import { UserProvider } from '../lib/auth';
-import { getUser } from '../db/queries';
-
+import { UserProvider } from '@/lib/auth';
+import { getUser } from '@/db/queries';
 import { FooterSection } from "@/components/layout/sections/footer";
 import { Navbar } from "@/components/layout/navbar";
 import { ThemeProvider } from "@/components/layout/theme-provider";
@@ -24,7 +23,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
   let userPromise = getUser();
+  
 
   return (
     <html
@@ -42,6 +43,8 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Navbar />
+
+            
 
             {children}
             <FooterSection />

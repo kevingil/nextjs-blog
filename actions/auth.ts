@@ -2,16 +2,16 @@
 
 import { z } from 'zod';
 import { and, eq, sql } from 'drizzle-orm';
-import { db } from '../../db/drizzle';
-import { users, projects, articles, articleTags, tags, NewUser, Role } from '../../db/schema';
-import { comparePasswords, hashPassword, setSession } from '../../lib/auth/session';
+import { db } from '../db/drizzle';
+import { users, projects, articles, articleTags, tags, NewUser, Role } from '../db/schema';
+import { comparePasswords, hashPassword, setSession } from '../lib/auth/session';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { getUser } from '../../db/queries';
+import { getUser } from '../db/queries';
 import {
   validatedAction,
   validatedActionWithUser,
-} from '../../lib/auth/middleware';
+} from '../lib/auth/middleware';
 
 const signInSchema = z.object({
   email: z.string().email().min(3).max(255),
