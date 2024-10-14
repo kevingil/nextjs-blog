@@ -1,5 +1,3 @@
-import { CommunitySection } from "@/components/layout/home/community";
-import { FeaturesSection } from "@/components/layout/sections/features";
 import { ServicesSection } from "@/components/home/sections/services";
 
 
@@ -36,9 +34,7 @@ export const metadata = {
 export default function HomePage() {
   return (
     <main>
-      <FeaturesSection />
       <ServicesSection />
-      <CommunitySection />
     </main>
   );
 }

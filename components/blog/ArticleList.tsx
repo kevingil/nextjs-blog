@@ -5,7 +5,7 @@ import { db } from '@/db/drizzle';
 import { articles, users, articleTags, tags } from '@/db/schema';
 import { Card, CardContent } from "@/components/ui/card"
 import { Image as ImageIcon } from "lucide-react"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -100,7 +100,7 @@ export async function ArticlesList({ pagination }: ArticleListProps) {
   const articles = await getArticles();
 
   return (
-    <div className="grid grid-cols-1 gap-4">
+    <div className="grid grid-cols-1 gap-4 px-4 sm:py-8">
       {articles.map((article) => (
         <Card key={article.id}>
           <CardContent className="p-0">
@@ -109,9 +109,6 @@ export async function ArticlesList({ pagination }: ArticleListProps) {
               <div className='p-4 w-full'>
                 <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
                 <div className="flex items-center mb-4">
-                  <Avatar className="h-8 w-8 mr-2">
-                    <AvatarFallback>{article.author?.charAt(0)}</AvatarFallback>
-                  </Avatar>
                   <span className="text-sm text-muted-foreground">{article.author}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -138,7 +135,7 @@ export async function ArticlesList({ pagination }: ArticleListProps) {
           </CardContent>
         </Card>
       ))}
-      {pagination && (
+      {pagination ? (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
@@ -163,7 +160,14 @@ export async function ArticlesList({ pagination }: ArticleListProps) {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      )}
+      ) : 
+      <div className="flex justify-end p-4">
+        <Link href="/articles"
+          className="flex items-center font-medium text-primary transition-colors duration-200 
+          border border-gray-300 dark:border-gray-800 bg-card hover:border-primary dark:hover:border-primary rounded-lg px-4 py-2 shadow-sm">
+          <p className="text-md text-muted-foreground">See all</p>
+        </Link>
+      </div>}
     </div>
   );
 }

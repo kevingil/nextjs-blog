@@ -44,9 +44,10 @@ export default function RootLayout({
           >
             <Navbar />
 
-            
+            <main className="max-w-6xl mx-auto px-2 sm:px-6">
+              {children}
+            </main>
 
-            {children}
             <FooterSection />
 
           </ThemeProvider>

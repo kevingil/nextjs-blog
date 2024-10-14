@@ -9,7 +9,7 @@ export const FooterSection = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-x-12 gap-y-8">
           <div className="col-span-full xl:col-span-2">
             <Link href="#" className="flex font-bold items-center">
-              <Terminal className="w-9 h-9 mr-2 text-white bg-gradient-to-tr from-primary via-primary/70 to-primary rounded-lg border border-secondary" />
+              <Terminal className="w-9 h-9 mr-2 text-white bg-primary rounded-lg" />
 
               <h3 className="text-2xl">Kevin Gil</h3>
             </Link>

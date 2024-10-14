@@ -79,10 +79,10 @@ export const Navbar = () => {
 
   }
   return (
-    <header className="border shadow backdrop-blur-md w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-2 mx-auto 
-      sticky border border-secondary z-50 rounded-2xl flex justify-between items-center p-2 bg-card/50 mb-12">
+    <header className="shadow-nav backdrop-blur-md w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-2 mx-auto 
+      sticky border border-indigo-600/10 dark:border-indigo-600/20 z-50 rounded-2xl flex justify-between items-center p-4 bg-card/50 dark:bg-neutral-700/20 mb-12">
       <Link href="/" className="font-bold text-lg flex items-center">
-        <Terminal className="bg-gradient-to-tr border-secondary from-primary via-primary/70 to-primary rounded-lg w-9 h-9 mr-2 border text-white" />
+        <Terminal className="bg-primary rounded-lg w-9 h-9 mr-2 text-white" />
         {title}
       </Link>
       {/* <!-- Mobile --> */}

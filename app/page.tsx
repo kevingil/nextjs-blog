@@ -27,7 +27,7 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <main className="max-w-7xl mx-auto">
+    <div>
       <Suspense fallback={<ArticlesSkeleton />}>
         <ArticlesList
         pagination={false} />
@@ -35,6 +35,6 @@ export default function HomePage() {
       <FeaturesSection />
       <ServicesSection />
       <CommunitySection />
-    </main>
+    </div>
   );
 }

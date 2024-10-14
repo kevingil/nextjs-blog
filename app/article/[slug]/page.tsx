@@ -6,9 +6,7 @@ import { format } from 'date-fns';
 import { db } from '@/db/drizzle';
 import { Article, articles, users, articleTags, tags } from '@/db/schema';
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -181,9 +179,6 @@ async function ArticleContent({ slug }: { slug: string }) {
         />
       )}
       <div className="flex items-center mb-6">
-        <Avatar className="h-10 w-10 mr-4">
-          <AvatarFallback>{articleData.author_name.charAt(0)}</AvatarFallback>
-        </Avatar>
         <div>
           <p className="font-semibold">{articleData.author_name}</p>
           <p className="text-sm text-muted-foreground">
@@ -211,7 +206,7 @@ async function RecommendedArticles({ slug }: { slug: string }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {recommendedArticles?.map((article: RecommendedArticle) => (
-        <a href={`/blog/${article.slug}`} key={article.id} >
+        <a href={`/article/${article.slug}`} key={article.id} >
         <Card className="p-0">
           {article.image && (
             <img
