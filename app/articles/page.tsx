@@ -1,5 +1,8 @@
+'use client'
+
 import { Suspense } from 'react';
-import { ArticlesList, ArticlesSkeleton } from '@/components/blog/ArticleList';
+import ArticlesList, { ArticlesSkeleton } from '@/components/blog/ArticleList';
+
 
 export default function ArticlesPage() {
   return (

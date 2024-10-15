@@ -2,7 +2,7 @@
 import { CommunitySection } from "@/components/home/sections/community";
 import { FeaturesSection } from "@/components/home/sections/features";
 import { Suspense } from 'react';
-import { ArticlesList, ArticlesSkeleton } from '@/components/blog/ArticleList';
+import ArticlesList, { ArticlesSkeleton } from '@/components/blog/ArticleList';
 import { ServicesSection } from "@/components/home/sections/services";
 
 export const metadata = {

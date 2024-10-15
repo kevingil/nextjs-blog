@@ -1,69 +1,25 @@
-import { eq } from 'drizzle-orm';
-import { format } from 'date-fns';
+'use client';
 
-import { db } from '@/db/drizzle';
-import { articles, users, articleTags, tags } from '@/db/schema';
-import { Card, CardContent } from "@/components/ui/card"
-import { Image as ImageIcon } from "lucide-react"
-import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
-import { Skeleton } from "@/components/ui/skeleton"
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { format } from 'date-fns';
+import { Card, CardContent } from "@/components/ui/card";
+import { Image as ImageIcon } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"
+} from "@/components/ui/pagination";
+import { getArticles, ArticleListItem } from './actions';
 
 type ArticleListProps = {
-  pagination: boolean
-}
-
-type ArticleListItem = {
-  id: number;
-  title: string | null;
-  slug: string | null;
-  createdAt: number;
-  image: string | null;
-  content: string | null;
-  author: string | null;
-  tags: (string | null)[];
-}
-
-async function getArticles(): Promise<ArticleListItem[]> {
-  const articlesData = await db
-    .select({
-      id: articles.id,
-      title: articles.title,
-      slug: articles.slug,
-      image: articles.image,
-      content: articles.content,
-      createdAt: articles.createdAt,
-      author: users.name,
-    })
-    .from(articles)
-    .leftJoin(users, eq(articles.author, users.id))
-    .where(eq(articles.isDraft, false));
-
-  const articlesWithTags = await Promise.all(
-    articlesData.map(async (article) => {
-      const tagData = await db
-        .select({ tagName: tags.name })
-        .from(articleTags)
-        .innerJoin(tags, eq(articleTags.tagId, tags.id))
-        .where(eq(articleTags.articleId, article.id));
-
-      return {
-        ...article,
-        tags: tagData.map((tag) => tag.tagName),
-      };
-    })
-  );
-
-  return articlesWithTags;
+  pagination: boolean;
 }
 
 function ArticleCardSkeleton() {
@@ -96,15 +52,41 @@ export function ArticlesSkeleton() {
   );
 }
 
-export async function ArticlesList({ pagination }: ArticleListProps) {
-  const articles = await getArticles();
+export default function ArticlesList({ pagination }: ArticleListProps) {
+  const searchParams = useSearchParams();
+  const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+  const [articles, setArticles] = useState<ArticleListItem[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setLoading(true);
+      const { articles, totalPages } = await getArticles(page);
+      setArticles(articles);
+      setTotalPages(totalPages);
+      setLoading(false);
+    };
+
+    fetchArticles();
+  }, [page]);
+
+  const createPageURL = (pageNumber: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', pageNumber.toString());
+    return `?${params.toString()}`;
+  };
+
+  if (loading) {
+    return <ArticlesSkeleton />;
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4 px-4 sm:py-8">
       {articles.map((article) => (
         <Card key={article.id}>
           <CardContent className="p-0">
-            <a href={`/article/${article.slug}`}
+            <Link href={`/article/${article.slug}`}
               className='w-full h-full flex flex-row justify-between'>
               <div className='p-4 w-full'>
                 <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
@@ -131,43 +113,38 @@ export async function ArticlesList({ pagination }: ArticleListProps) {
                   <ImageIcon className='h-2/3 w-full text-zinc-200 dark:text-zinc-600' />
                 }
               </div>
-            </a>
+            </Link>
           </CardContent>
         </Card>
       ))}
-      {pagination ? (
+      {pagination && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href="#" />
+              <PaginationPrevious href={page > 1 ? createPageURL(page - 1) : '#'} />
             </PaginationItem>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
+              <PaginationItem key={pageNumber}>
+                <PaginationLink href={createPageURL(pageNumber)} isActive={pageNumber === page}>
+                  {pageNumber}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
             <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#" isActive>
-                2
-              </PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">3</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
+              <PaginationNext href={page < totalPages ? createPageURL(page + 1) : '#'} />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      ) : 
-      <div className="flex justify-end p-4">
-        <Link href="/articles"
-          className="flex items-center font-medium text-primary transition-colors duration-200 
-          border border-gray-300 dark:border-gray-800 bg-card hover:border-primary dark:hover:border-primary rounded-lg px-4 py-2 shadow-sm">
-          <p className="text-md text-muted-foreground">See all</p>
-        </Link>
-      </div>}
+      )}
+      {!pagination && (
+        <div className="flex justify-end p-4">
+          <Link href="/articles"
+            className="flex items-center font-medium text-primary transition-colors duration-200 
+            border border-gray-300 dark:border-gray-800 bg-card hover:border-primary dark:hover:border-primary rounded-lg px-4 py-2 shadow-sm">
+            <p className="text-md text-muted-foreground">See all</p>
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
