@@ -14,7 +14,7 @@ const config: Config = {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			boxShadow: {
-				'card': '0 35px 40px -15px rgba(0, 0, 0, 0.1)',
+				'card': '0 0px 40px -15px rgba(0, 0, 0, 0.1)',
 				'nav': '0 10px 20px -10px rgba(75, 0, 130, 0.09)',
 			},
 			colors: {

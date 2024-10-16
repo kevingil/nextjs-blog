@@ -67,7 +67,7 @@ export default function DashboardLayout({
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-0 lg:p-4">{children}</main>
+        <main className="flex-1 overflow-y-auto p-0">{children}</main>
       </div>
     </div>
   );
