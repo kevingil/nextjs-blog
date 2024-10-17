@@ -1,9 +1,7 @@
 
-import { CommunitySection } from "@/components/home/sections/community";
-import { FeaturesSection } from "@/components/home/sections/features";
+import { HeroSection } from "@/components/home/sections/hero";
 import { Suspense } from 'react';
 import ArticlesList, { ArticlesSkeleton } from '@/components/blog/ArticleList';
-import { ServicesSection } from "@/components/home/sections/services";
 
 export const metadata = {
   title: "Kevin Gil",
@@ -28,13 +26,11 @@ export const metadata = {
 export default function HomePage() {
   return (
     <div>
+      <HeroSection />
       <Suspense fallback={<ArticlesSkeleton />}>
-        <ArticlesList
+      <ArticlesList
         pagination={false} />
       </Suspense>
-      <FeaturesSection />
-      <ServicesSection />
-      <CommunitySection />
     </div>
   );
 }

@@ -50,7 +50,7 @@ export default function SecurityPage() {
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1 p-0 md:p-4">
       <h1 className="text-lg lg:text-2xl font-medium bold text-gray-900 dark:text-white mb-6">
         Security Settings
       </h1>

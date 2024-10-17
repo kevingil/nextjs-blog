@@ -82,11 +82,26 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 sm:py-8">
+    <div className="grid grid-cols-1 gap-4 sm:py-8">
+
+      {!pagination && (
+        <div className="flex justify-between p-4 items-center">
+
+          <h2 className="font-semibold text-primary">
+            Recent Articles
+          </h2>
+          <Link href="/blog"
+            className="flex items-center font-medium text-primary transition-colors duration-200 
+            border border-gray-300 dark:border-gray-800 bg-card hover:border-primary dark:hover:border-primary rounded-lg px-4 py-2 shadow-sm">
+            <p className="text-md text-muted-foreground">See all</p>
+          </Link>
+        </div>
+      )}
+
       {articles.map((article) => (
         <Card key={article.id}>
           <CardContent className="p-0">
-            <Link href={`/article/${article.slug}`}
+            <Link href={`/blog/${article.slug}`}
               className='w-full h-full flex flex-row justify-between'>
               <div className='p-4 w-full'>
                 <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
@@ -135,15 +150,6 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
             </PaginationItem>
           </PaginationContent>
         </Pagination>
-      )}
-      {!pagination && (
-        <div className="flex justify-end p-4">
-          <Link href="/articles"
-            className="flex items-center font-medium text-primary transition-colors duration-200 
-            border border-gray-300 dark:border-gray-800 bg-card hover:border-primary dark:hover:border-primary rounded-lg px-4 py-2 shadow-sm">
-            <p className="text-md text-muted-foreground">See all</p>
-          </Link>
-        </div>
       )}
     </div>
   );

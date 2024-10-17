@@ -32,17 +32,14 @@ export default function ArticlesPage() {
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1 p-0 md:p-4">
       <h1 className="text-lg lg:text-2xl font-medium text-gray-900 dark:text-white mb-6">
         Articles
       </h1>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Article Table</CardTitle>
-        </CardHeader>
         <CardContent>
-          <Table>
+          <Table className="mt-4">
             <TableHeader>
               <TableRow>
                 <TableHead>Title</TableHead>
@@ -69,7 +66,7 @@ export default function ArticlesPage() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/articles/edit/${article.slug}`}>
+                          <Link href={`/dashboard/blog/edit/${article.slug}`}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </Link>

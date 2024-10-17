@@ -142,7 +142,7 @@ export default function Page({ params }: PostPageProps) {
   const { slug } = params;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto py-8">
       <Suspense fallback={<ArticleSkeleton />}>
         <ArticleContent slug={slug} />
       </Suspense>
@@ -167,7 +167,7 @@ async function ArticleContent({ slug }: { slug: string }) {
   }
 
   return (
-    <article className="max-w-3xl mx-auto">
+    <article className="max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold mb-4">{content.title}</h1>
       {content.image && (
         <img
@@ -206,7 +206,7 @@ async function RecommendedArticles({ slug }: { slug: string }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {recommendedArticles?.map((article: RecommendedArticle) => (
-        <a href={`/article/${article.slug}`} key={article.id} >
+        <a href={`/blog/${article.slug}`} key={article.id} >
         <Card className="p-0">
           {article.image && (
             <img

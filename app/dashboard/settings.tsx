@@ -18,7 +18,7 @@ export function Settings({ userData }: { userData: User }) {
   };
 
   return (
-    <section className="flex-1 p-4 lg:p-8">
+    <section className="flex-1 p-0 md:p-4">
       <h1 className="text-lg lg:text-2xl font-medium mb-6">Dashboard</h1>
       <Card className="mb-8">
         <CardHeader>

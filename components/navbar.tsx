@@ -36,6 +36,10 @@ import Link from "next/link";
 import Router, { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ToggleTheme } from "./home/toogle-theme";
+import { Bebas_Neue } from 'next/font/google';
+
+const pd = Bebas_Neue({ weight: '400', subsets: ['latin'] });
+
 
 interface RouteProps {
   href: string;
@@ -51,8 +55,8 @@ const title: string = "Kevin Gil";
 
 const routeList: RouteProps[] = [
   {
-    href: "/articles",
-    label: "Articles",
+    href: "/blog",
+    label: "Blog",
   },
   {
     href: "/contact",
@@ -81,8 +85,7 @@ export const Navbar = () => {
   return (
     <header className="shadow-nav backdrop-blur-md w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-2 mx-auto 
       sticky border border-indigo-600/10 dark:border-indigo-600/20 z-50 rounded-2xl flex justify-between items-center p-4 bg-card/50 dark:bg-neutral-700/20 mb-12">
-      <Link href="/" className="font-bold text-lg flex items-center">
-        <Terminal className="bg-primary rounded-lg w-9 h-9 mr-2 text-white" />
+      <Link href="/" className={' font-bold text-2xl flex items-center'}>
         {title}
       </Link>
       {/* <!-- Mobile --> */}
@@ -150,8 +153,8 @@ export const Navbar = () => {
 
       <div className="hidden lg:flex gap-4">
         <ToggleTheme />
-        <div className="flex items-center space-x-4">
-          {user ? (
+        {user && (
+          <div className="flex items-center space-x-4">
             <DropdownMenu open={isMenuOpen} onOpenChange={setIsMenuOpen}>
               <DropdownMenuTrigger asChild>
                 <Avatar className="cursor-pointer size-9">
@@ -181,15 +184,8 @@ export const Navbar = () => {
                 </form>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Button
-              asChild
-              className="bg-black hover:bg-gray-800 text-white text-sm px-4 py-2 rounded-full"
-            >
-              <Link href="/sign-up">Sign Up</Link>
-            </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </header>
   );

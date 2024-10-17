@@ -62,7 +62,7 @@ export default function EditArticlePage({ params }: { params: { slug: string } }
         tags: data.tags.split(',').map(tag => tag.trim()),
       });
       toast({ title: "Success", description: "Article updated successfully." });
-      router.push(`/article/${params.slug}`);
+      router.push(`/blog/${params.slug}`);
     } catch (error) {
       console.error('Failed to update article:', error);
       toast({ title: "Error", description: "Failed to update article. Please try again." });

@@ -16,7 +16,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: '/dashboard', icon: Users, label: 'Dashboard' },
-    { href: '/dashboard/articles', icon: PenLine, label: 'Articles' },
+    { href: '/dashboard/blog', icon: PenLine, label: 'Articles' },
     { href: '/dashboard/uploads', icon: ImageUp, label: 'Uploads' },
     { href: '/dashboard/general', icon: Settings, label: 'General' },
     { href: '/dashboard/security', icon: Shield, label: 'Security' },
