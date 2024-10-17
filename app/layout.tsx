@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
 import { UserProvider } from '@/lib/auth';
 import { getUser } from '@/db/queries';
-import { FooterSection } from "@/components/home/sections/footer";
+import { FooterSection } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/home/theme-provider";
 

@@ -1,5 +1,5 @@
 
-import { HeroSection } from "@/components/home/sections/hero";
+import { HeroSection } from "@/components/home/hero";
 import { Suspense } from 'react';
 import ArticlesList, { ArticlesSkeleton } from '@/components/blog/ArticleList';
 
