@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { updateArticle, getArticle } from './actions';
+import Link from 'next/link';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -76,17 +77,30 @@ export default function EditArticlePage({ params }: { params: { slug: string } }
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <section className="flex-1 p-0 md:p-4">
+      <h1 className="text-lg lg:text-2xl font-medium text-gray-900 dark:text-white mb-6">
+        Edit Article
+      </h1>
       <Card>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
           <CardContent className="space-y-4">
             <div>
+              <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Title</label>
               <Input
                 {...register('title')}
                 placeholder="Article Title"
               />
               {errors.title && <p className="text-red-500">{errors.title.message}</p>}
             </div>
+            <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Image URL</label>
+            <div>
+              <Input
+                {...register('image')}
+                placeholder="Optional, for header"
+              />
+              {errors.image && <p className="text-red-500">{errors.image.message}</p>}
+            </div>
+            <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Content</label>
             <div>
               <Textarea
                 {...register('content')}
@@ -95,13 +109,7 @@ export default function EditArticlePage({ params }: { params: { slug: string } }
               />
               {errors.content && <p className="text-red-500">{errors.content.message}</p>}
             </div>
-            <div>
-              <Input
-                {...register('image')}
-                placeholder="Image URL (optional)"
-              />
-              {errors.image && <p className="text-red-500">{errors.image.message}</p>}
-            </div>
+            <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Tags</label>
             <div>
               <Input
                 {...register('tags')}
@@ -110,13 +118,18 @@ export default function EditArticlePage({ params }: { params: { slug: string } }
               {errors.tags && <p className="text-red-500">{errors.tags.message}</p>}
             </div>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="flex justify-between">
+            <Button variant="secondary">
+              <Link href="/dashboard/blog">
+              Cancel
+              </Link>
+            </Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? 'Updating...' : 'Update Article'}
             </Button>
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </section>
   );
 }

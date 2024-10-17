@@ -87,7 +87,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
       {!pagination && (
         <div className="flex justify-between p-4 items-center">
 
-          <h2 className="font-semibold text-primary">
+          <h2 className="font-semibold text-muted-foreground">
             Recent Articles
           </h2>
           <Link href="/blog"
@@ -116,7 +116,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
                 </p>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {article.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                    <Badge key={tag} variant="secondary" className="text-primary">{tag}</Badge>
                   ))}
                 </div>
               </div>

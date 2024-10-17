@@ -189,7 +189,7 @@ async function ArticleContent({ slug }: { slug: string }) {
       <div className="prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: content.content }} />
       <div className="flex flex-wrap gap-2 mb-8">
         {articleData.tags?.map((tag) => (
-          <Badge key={tag.tagId} variant="secondary">{tag.tagName}</Badge>
+          <Badge key={tag.tagId} variant="secondary" className='text-primary'>{tag.tagName}</Badge>
         ))}
       </div>
     </article>

@@ -52,7 +52,9 @@ export default function ArticlesPage() {
             <TableBody>
               { articles ? articles.map((article) => (
                 <TableRow key={article.id}>
-                  <TableCell className="font-medium">{article.title}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link href={`/dashboard/blog/edit/${article.slug}`} className="hover:underline">{article.title}</Link>
+                  </TableCell>
                   <TableCell>{article.tags.join(', ')}</TableCell>
                   <TableCell>{new Date(article.createdAt * 1000).toLocaleDateString()}</TableCell>
                   <TableCell>{article.isDraft ? 'Draft' : 'Published'}</TableCell>

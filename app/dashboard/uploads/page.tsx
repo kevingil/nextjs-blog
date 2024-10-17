@@ -12,10 +12,11 @@ import { redirect } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogClose
 } from "@/components/ui/dialog"
 
 
@@ -74,6 +75,25 @@ export default function UploadsPage() {
     const newPath = currentPath.split('/').slice(0, -2).join('/') + '/';
     setCurrentPath(newPath);
   };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text).catch(err => {
+      console.error('Error copying to clipboard:', err);
+    });
+  };
+
+  const formatMarkdownLink = (file: FileData | null) => {
+    if (!file) {
+      return '';
+    } else {
+
+      let markdownLink = file?.isImage
+        ? `![${file.key}](${file.url})`
+        : `[${file.key}](${file.url})`;
+      return markdownLink
+    }
+  }
+
 
   return (
     <section className="flex-1 p-0 md:p-4">
@@ -149,7 +169,7 @@ export default function UploadsPage() {
                 <TableRow key={file.key}>
                   <TableCell>
                     <Dialog>
-                      <DialogTrigger className='flex items-center text-left'>                     
+                      <DialogTrigger className='flex items-center text-left'>
                         {file.isImage ?
                           <img
                             src={`${urlPrefix}/${file.key}`}
@@ -160,20 +180,98 @@ export default function UploadsPage() {
                         }
                         {file.key.split('/').pop()}
                       </DialogTrigger>
-                      <DialogContent>
+                      <DialogContent className='w-full md:max-w-5xl max-h-[90vh] overflow-y-auto'>
+
+
+
+
                         <DialogHeader>
-                          <DialogTitle>File {file.key.split('/').pop()}</DialogTitle>
-                          <DialogDescription>
-                            {file.isImage ?
-                              <img
-                                src={`${urlPrefix}/${file.key}`}
-                                className="w-full max-h-1/2 mr-2"
-                              />
-                              :
-                              <File className="mr-2" />
-                            }
-                          </DialogDescription>
+                          <DialogTitle className="text-xl font-medium">
+                            File Detail
+                          </DialogTitle>
                         </DialogHeader>
+
+                        <div className="space-y-4">
+                          {file?.isImage ? (
+                            <div className="flex justify-center">
+                              <img
+                                src={file.url}
+                                alt={file.key}
+                                className="max-h-[500px] p-4"
+                              />
+                            </div>
+                          ) : (
+                            <File className="w-full h-48 p-4 text-gray-600" />
+                          )}
+
+                          <div className="space-y-2">
+                            <div>
+                              <p className="text-sm font-medium">File name</p>
+                              <p className="mt-1">{file?.key}</p>
+                            </div>
+
+                            <div>
+                              <p className="text-sm font-medium">Link</p>
+                              <div className="flex mt-1 gap-2">
+                                <a href={file?.url} className="mt-1 break-all text-blue-600 hover:underline">
+                                  {file?.url}
+                                </a>
+
+                                <Button
+                                  variant="outline"
+                                  className="px-3 rounded-l-none"
+                                  onClick={() => copyToClipboard(file.url)}
+                                >
+                                  Copy
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div>
+                              <p className="text-sm font-medium">Markdown</p>
+                              <div className="flex mt-1 gap-2">
+                                <p className="flex-1 p-2 bg-gray-200 dark:bg-gray-800">
+                                  {formatMarkdownLink(file)}
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  className="px-3 rounded-l-none"
+                                  onClick={() => copyToClipboard(formatMarkdownLink(file))}
+                                >
+                                  Copy
+                                </Button>
+                              </div>
+                            </div>
+
+                            <div>
+                              <p className="text-sm font-medium">Size</p>
+                              <p className="mt-1">{file?.size}</p>
+                            </div>
+
+                            <div>
+                              <p className="text-sm font-medium">Last modified</p>
+                              <p className="mt-1">
+                                {file?.lastModified && new Date(file.lastModified).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 flex justify-between w-full gap-2">
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleDeleteFile(file.key)}
+                            className="w-full sm:w-auto"
+                          >
+                            Delete
+                          </Button>
+                          <DialogClose asChild>
+                            <Button type="button" variant="secondary">
+                              Close
+                            </Button>
+                          </DialogClose>
+                        </div>
+
                       </DialogContent>
                     </Dialog>
 
