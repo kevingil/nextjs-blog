@@ -16,6 +16,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Input } from "@/components/ui/input";
 import { getArticles, ArticleListItem } from './actions';
 
 type ArticleListProps = {
@@ -55,9 +56,17 @@ export function ArticlesSkeleton() {
 export default function ArticlesList({ pagination }: ArticleListProps) {
   const searchParams = useSearchParams();
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
+  const [searchTag, setSearchTag] = useState<string | null>(searchParams.get('tag'));
   const [articles, setArticles] = useState<ArticleListItem[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
+  const [recentTags, setRecentTags] = useState<string[]>([]);
+
+  useEffect(() => {
+    setRecentTags(['React', 'Next.js', 'TypeScript', 'JavaScript', 'Web Development']);
+  }, []);
+
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -84,7 +93,50 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:py-8">
 
-      {!pagination && (
+      {pagination ? (
+        <div>
+          <Input
+            type="search"
+            placeholder="Search articles..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              const params = new URLSearchParams(searchParams);
+              if (e.target.value) {
+                params.set('search', e.target.value);
+              } else {
+                params.delete('search');
+              }
+              window.history.replaceState({}, '', `?${params.toString()}`);
+            }}
+            className="w-full p-4 py-6 rounded-full"
+          />
+          <div className='flex flex-wrap gap-2 my-4'>
+          {recentTags.map((tag) => (
+            <Badge
+              key={tag}
+              variant={searchTag === tag ? "default" : "secondary"}
+              className="cursor-pointer hover:bg-primary/90"
+              onClick={() => {
+                const params = new URLSearchParams(searchParams);
+                if (searchTag === tag) {
+                  params.delete('tag');
+                  setSearchTag(null);
+                } else {
+                  params.set('tag', tag);
+                  setSearchTag(tag);
+                }
+                params.set('page', '1');
+                window.history.replaceState({}, '', `?${params.toString()}`);
+              }}
+            >
+              {tag}
+            </Badge>
+          ))}
+          </div>
+
+        </div>
+      ) : (
         <div className="flex justify-between p-4 items-center">
 
           <h2 className="font-semibold text-muted-foreground">
