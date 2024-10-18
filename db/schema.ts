@@ -35,9 +35,7 @@ export const users = sqliteTable('users', {
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   passwordHash: text('passwordHash').notNull(),
-  about: text('about'),
   role: text('role').notNull().default(Role.USER),
-  contact: text('contact'),
 });
 
 // Projects table
@@ -47,7 +45,27 @@ export const projects = sqliteTable('projects', {
   description: text('description').notNull(),
   url: text('url').notNull(),
   image: text('image'),
-  userId: integer('user_id').notNull().references(() => users.id),
+});
+
+// About Page table
+export const aboutPage = sqliteTable('about_page', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  title: text('title').notNull(),
+  content: text('content').notNull(), 
+  profileImage: text('profile_image'),
+  metaDescription: text('meta_description'), 
+  lastUpdated: text('last_updated').notNull(),
+});
+
+// Contact Page table
+export const contactPage = sqliteTable('contact_page', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  title: text('title').notNull(),
+  content: text('content').notNull(), 
+  emailAddress: text('email_address').notNull(), 
+  socialLinks: text('social_links'), 
+  metaDescription: text('meta_description'), 
+  lastUpdated: text('last_updated').notNull(),
 });
 
 // Articles table with vector embeddings
@@ -76,6 +94,7 @@ export const articleTags = sqliteTable('article_tags', {
 }, (table) => ({
   pk: unique().on(table.articleId, table.tagId),
 }));
+
 
 // Function to create vector index (to be used after table creation)
 export async function createVectorIndex(db: any) {
@@ -108,6 +127,12 @@ export type NewUser = typeof users.$inferInsert;
 
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
+
+export type AboutPage = typeof aboutPage.$inferSelect;
+export type NewAboutPage = typeof aboutPage.$inferInsert;
+
+export type ContactPage = typeof contactPage.$inferSelect;
+export type NewContactPage = typeof contactPage.$inferInsert;
 
 export type Article = typeof articles.$inferSelect;
 export type NewArticle = typeof articles.$inferInsert;

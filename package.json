@@ -1,5 +1,5 @@
 {
-  "name": "nextjs-drizzle",
+  "name": "kevingil-blog",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,7 +17,7 @@
     "@aws-sdk/client-s3": "^3.670.0",
     "@aws-sdk/credential-providers": "^3.670.0",
     "@hookform/resolvers": "^3.9.0",
-    "@libsql/client": "^0.7.0",
+    "@libsql/client": "^0.10.0",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-checkbox": "^1.1.2",
@@ -43,7 +43,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.32.2",
+    "drizzle-orm": "^0.35.1",
     "drizzle-zod": "^0.5.1",
     "embla-carousel-react": "^8.3.0",
     "jose": "^5.9.4",
@@ -62,7 +62,6 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/tailwindcss": "^3.1.0",
-    "drizzle-kit": "^0.25.0"
+    "drizzle-kit": "^0.26.2"
   }
 }
