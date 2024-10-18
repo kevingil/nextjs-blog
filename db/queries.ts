@@ -1,7 +1,9 @@
-import { and, eq } from 'drizzle-orm';
+'use server'
+
 import { db } from './drizzle';
-import { users } from './schema';
+import { users, aboutPage, AboutPage, contactPage, ContactPage } from './schema';
 import { cookies } from 'next/headers';
+import { and, eq } from 'drizzle-orm';
 import { verifyToken } from '../lib/auth/session';
 
 export async function getUser() {
@@ -36,3 +38,53 @@ export async function getUser() {
   return user[0];
 }
 
+
+export async function getAboutPage(): Promise<AboutPage | null> {
+  try {
+    const result = await db.select().from(aboutPage).limit(1);
+    return result[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch about page:', error);
+    return null;
+  }
+}
+
+export async function getContactPage(): Promise<ContactPage | null> {
+  try {
+    const result = await db.select().from(contactPage).limit(1);
+    return result[0] || null;
+  } catch (error) {
+    console.error('Failed to fetch contact page:', error);
+    return null;
+  }
+}
+
+export async function updateAboutPage(data: Partial<AboutPage>): Promise<boolean> {
+  try {
+    await db.update(aboutPage)
+      .set({
+        ...data,
+        lastUpdated: new Date().toISOString(),
+      })
+      .where(eq(aboutPage.id, data.id!));
+    return true;
+  } catch (error) {
+    console.error('Failed to update about page:', error);
+    return false;
+  }
+}
+
+export async function updateContactPage(data: Partial<ContactPage>): Promise<boolean> {
+  try {
+    await db.update(contactPage)
+      .set({
+        ...data,
+        lastUpdated: new Date().toISOString(),
+      })
+      .where(eq(contactPage.id, data.id!));
+    return true;
+  } catch (error) {
+    console.error('Failed to update contact page:', error);
+    return false;
+  }
+}

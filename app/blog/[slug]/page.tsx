@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { eq, ne } from 'drizzle-orm';
+import { eq, not, and } from 'drizzle-orm';
 import { notFound } from 'next/navigation';
 import { format } from 'date-fns';
 
@@ -88,10 +88,11 @@ async function getRecommendedArticles(currentArticleId: number): Promise<Recomme
       image: articles.image,
       createdAt: articles.createdAt,
       author: users.name,
+      isDraft: articles.isDraft
     })
     .from(articles)
     .leftJoin(users, eq(articles.author, users.id))
-    .where((eq(articles.isDraft, false) && ne(articles.id, currentArticleId)))
+    .where(and(not(eq(articles.id, currentArticleId)), not(articles.isDraft)))
     .limit(3);
 }
 

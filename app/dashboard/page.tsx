@@ -9,5 +9,5 @@ export default async function SettingsPage() {
     redirect('/login');
   }
 
-  return <Settings userData={user} />;
+  return <Settings/>;
 }
