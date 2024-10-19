@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +17,11 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { getArticles, ArticleListItem } from './actions';
+import { getArticles, searchArticles, ArticleListItem } from './actions';
+
+
+// Debounce delay in ms
+const SEARCH_DELAY = 500; 
 
 type ArticleListProps = {
   pagination: boolean;
@@ -55,90 +59,157 @@ export function ArticlesSkeleton() {
 
 export default function ArticlesList({ pagination }: ArticleListProps) {
   const searchParams = useSearchParams();
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  
   const [page, setPage] = useState(Number(searchParams.get('page')) || 1);
   const [searchTag, setSearchTag] = useState<string | null>(searchParams.get('tag'));
   const [articles, setArticles] = useState<ArticleListItem[]>([]);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState<string>(searchParams.get('search') || '');
   const [recentTags, setRecentTags] = useState<string[]>([]);
 
+  // Update URL without triggering a navigation
+  // for tags, pages, and search
+  const updateURLQuietly = useCallback((newParams: { page?: number; search?: string; tag?: string | null }) => {
+    const params = new URLSearchParams(searchParams);
+    
+    if (newParams.page) {
+      params.set('page', newParams.page.toString());
+    }
+    
+    if (newParams.search !== undefined) {
+      if (newParams.search) {
+        params.set('search', newParams.search);
+      } else {
+        params.delete('search');
+      }
+    }
+    
+    if (newParams.tag !== undefined) {
+      if (newParams.tag) {
+        params.set('tag', newParams.tag);
+      } else {
+        params.delete('tag');
+      }
+    }
+
+    window.history.replaceState({}, '', `?${params.toString()}`);
+  }, [searchParams]);
+
+  // On every action, query params are updated first
+  // then we fetch articles based on current search params
+  const fetchArticles = useCallback(async (searchValue: string = searchTerm, pageNum: number = page) => {
+    setLoading(true);
+    try {
+      let result;
+      if (searchValue) {
+        result = await searchArticles(searchValue, pageNum);
+      } else {
+        result = await getArticles(pageNum);
+      }
+      setArticles(result.articles);
+      setTotalPages(result.totalPages);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initialize recent tags
+  // To do: get popular tags from database
   useEffect(() => {
     setRecentTags(['React', 'Next.js', 'TypeScript', 'JavaScript', 'Web Development']);
   }, []);
 
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      const { articles, totalPages } = await getArticles(page);
-      setArticles(articles);
-      setTotalPages(totalPages);
-      setLoading(false);
+  // Debounce implementation function
+  // thanks to: https://blog.alexefimenko.com/posts/debounce-react
+  const debounce = (func: Function, delay: number) => {
+    return function (...args: any[]) {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
+      
+      debounceTimeout.current = setTimeout(() => {
+        func(...args);
+        debounceTimeout.current = null;
+      }, delay);
     };
-
-    fetchArticles();
-  }, [page]);
-
-  const createPageURL = (pageNumber: number) => {
-    const params = new URLSearchParams(searchParams);
-    params.set('page', pageNumber.toString());
-    return `?${params.toString()}`;
   };
 
-  if (loading) {
-    return <ArticlesSkeleton />;
-  }
+  // Debounce (delay) search
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      setPage(1);
+      updateURLQuietly({ search: value, page: 1 });
+      fetchArticles(value, 1);
+    }, SEARCH_DELAY),
+    [updateURLQuietly, fetchArticles]
+  );
+
+  // Handle search input change
+  const handleSearch = (value: string) => {
+    setSearchTerm(value);
+    debouncedSearch(value);
+  };
+
+  // Handle tag selection
+  const handleTagClick = (tag: string) => {
+    const newTag = searchTag === tag ? null : tag;
+    setSearchTag(newTag);
+    setPage(1);
+    updateURLQuietly({ tag: newTag, page: 1 });
+    fetchArticles();
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    updateURLQuietly({ page: newPage });
+    fetchArticles(searchTerm, newPage);
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchArticles();
+  }, []); 
 
   return (
     <div className="grid grid-cols-1 gap-4 sm:py-8">
-
-      {pagination ? (
+      {pagination && (
         <div>
-          <Input
-            type="search"
-            placeholder="Search articles..."
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              const params = new URLSearchParams(searchParams);
-              if (e.target.value) {
-                params.set('search', e.target.value);
-              } else {
-                params.delete('search');
-              }
-              window.history.replaceState({}, '', `?${params.toString()}`);
-            }}
-            className="w-full p-4 py-6 rounded-full"
-          />
-          <div className='flex flex-wrap gap-2 my-4'>
-          {recentTags.map((tag) => (
-            <Badge
-              key={tag}
-              variant={searchTag === tag ? "default" : "secondary"}
-              className="cursor-pointer hover:bg-primary/90"
-              onClick={() => {
-                const params = new URLSearchParams(searchParams);
-                if (searchTag === tag) {
-                  params.delete('tag');
-                  setSearchTag(null);
-                } else {
-                  params.set('tag', tag);
-                  setSearchTag(tag);
-                }
-                params.set('page', '1');
-                window.history.replaceState({}, '', `?${params.toString()}`);
-              }}
-            >
-              {tag}
-            </Badge>
-          ))}
+          <div className="relative">
+            <Input
+              type="search"
+              placeholder="Search articles..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="w-full p-4 py-6 rounded-full"
+            />
+            {debounceTimeout.current && (
+              <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+              </div>
+            )}
           </div>
-
+          <div className='flex flex-wrap gap-2 my-4'>
+            {recentTags.map((tag) => (
+              <Badge
+                key={tag}
+                variant={searchTag === tag ? "default" : "secondary"}
+                className="cursor-pointer hover:bg-primary/90"
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
         </div>
-      ) : (
-        <div className="flex justify-between p-4 items-center">
+      )}
 
+      {!pagination && (
+        <div className="flex justify-between p-4 items-center">
           <h2 className="font-semibold text-muted-foreground">
             Recent Articles
           </h2>
@@ -150,55 +221,79 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
         </div>
       )}
 
-      {articles.map((article) => (
-        <Card key={article.id}>
-          <CardContent className="p-0">
-            <Link href={`/blog/${article.slug}`}
-              className='w-full h-full flex flex-row justify-between'>
-              <div className='p-4 w-full'>
-                <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
-                <div className="flex items-center mb-4">
-                  <span className="text-sm text-muted-foreground">{article.author}</span>
-                </div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {article.content?.substring(0, 160)}
-                </p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {format(new Date(article.createdAt), 'MMMM d, yyyy')}
-                </p>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {article.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-primary">{tag}</Badge>
-                  ))}
-                </div>
-              </div>
-              <div className='w-1/3 p-4 flex items-center'>
-                {article.image !== null && article.image !== '' ? (
-                  <img src={article.image} alt={article.title ? article.title : ''}
-                    className="rounded-lg object-cover h-full w-full bg-gray-300/10 dark:bg-gray-100/10" />
-                ) :
-                  <ImageIcon className='h-2/3 w-full text-zinc-200 dark:text-zinc-600' />
-                }
-              </div>
-            </Link>
-          </CardContent>
-        </Card>
-      ))}
-      {pagination && (
+      {loading ? (
+        <ArticlesSkeleton />
+      ) : articles.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          {searchTerm && !debounceTimeout.current ? 
+            "No articles found matching your search criteria." :
+            "Loading results..."
+          }
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {articles.map((article) => (
+            <Card key={article.id}>
+              <CardContent className="p-0">
+                <Link href={`/blog/${article.slug}`}
+                  className='w-full h-full flex flex-row justify-between'>
+                  <div className='p-4 w-full'>
+                    <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
+                    <div className="flex items-center mb-4">
+                      <span className="text-sm text-muted-foreground">{article.author}</span>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {article.content?.substring(0, 160)}
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {format(new Date(article.createdAt), 'MMMM d, yyyy')}
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {article.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary" className="text-primary">{tag}</Badge>
+                      ))}
+                    </div>
+                  </div>
+                  <div className='w-1/3 p-4 flex items-center'>
+                    {article.image !== null && article.image !== '' ? (
+                      <img src={article.image} alt={article.title ? article.title : ''}
+                        className="rounded-lg object-cover h-full w-full bg-gray-300/10 dark:bg-gray-100/10" />
+                    ) : (
+                      <ImageIcon className='h-2/3 w-full text-zinc-200 dark:text-zinc-600' />
+                    )}
+                  </div>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {pagination && totalPages > 1 && (
         <Pagination>
           <PaginationContent>
             <PaginationItem>
-              <PaginationPrevious href={page > 1 ? createPageURL(page - 1) : '#'} />
+              <PaginationPrevious
+                onClick={() => page > 1 && handlePageChange(page - 1)}
+                className={page <= 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
             </PaginationItem>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNumber) => (
               <PaginationItem key={pageNumber}>
-                <PaginationLink href={createPageURL(pageNumber)} isActive={pageNumber === page}>
+                <PaginationLink
+                  onClick={() => handlePageChange(pageNumber)}
+                  isActive={pageNumber === page}
+                  className="cursor-pointer"
+                >
                   {pageNumber}
                 </PaginationLink>
               </PaginationItem>
             ))}
             <PaginationItem>
-              <PaginationNext href={page < totalPages ? createPageURL(page + 1) : '#'} />
+              <PaginationNext
+                onClick={() => page < totalPages && handlePageChange(page + 1)}
+                className={page >= totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
             </PaginationItem>
           </PaginationContent>
         </Pagination>
