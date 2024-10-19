@@ -4,7 +4,13 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Users, Settings, Shield, PenLine, Menu, ImageUp } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Users, Settings, Shield, PenLine, EllipsisVertical, ImageUp } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -12,58 +18,72 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { href: '/dashboard', icon: Users, label: 'Dashboard' },
+    { href: '/dashboard', icon: Users, label: 'Profile' },
     { href: '/dashboard/blog', icon: PenLine, label: 'Articles' },
     { href: '/dashboard/uploads', icon: ImageUp, label: 'Uploads' },
     { href: '/dashboard/general', icon: Settings, label: 'General' },
     { href: '/dashboard/security', icon: Shield, label: 'Security' },
   ];
 
+  const NavContent = ({ mobile = false }) => (
+    <nav className={mobile ? '' : ' flex flex-col gap-1'}>
+      {navItems.map((item) => (
+        <Link key={item.href} href={item.href} passHref>
+          {mobile ? (
+            <DropdownMenuItem asChild>
+              <Button
+                variant="ghost"
+                className="w-full justify-start"
+                onClick={() => setIsOpen(false)}
+              >
+                <item.icon className="mr-2 h-4 w-4" />
+                {item.label}
+              </Button>
+            </DropdownMenuItem>
+          ) : (
+            <Button
+              variant={pathname === item.href ? 'secondary' : 'ghost'}
+              className={`w-full justify-start py-8 rounded-xl ${pathname === item.href ? 'bg-zinc-100 dark:bg-zinc-800' : ''}`}
+              onClick={() => setIsOpen(false)}
+            >
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.label}
+            </Button>
+          )}
+        </Link>
+      ))}
+    </nav>
+  );
+
   return (
     <div className="flex flex-col min-h-[80dvh] max-w-7xl mx-auto w-full">
       {/* Mobile header */}
-      <div className="lg:hidden flex items-center justify-between bg-card border-b border-gray-200 p-4">
+      <div className="lg:hidden bg-transparent flex justify-between items-center gap-2 bg-card mb-12 rounded-xl p-4">
         <div className="flex items-center">
-          <span className="font-medium">Settings</span>
+          <span className="font-medium">Dashboard</span>
         </div>
-        <Button
-          className="-mr-3"
-          variant="ghost"
-          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        >
-          <Menu className="h-6 w-6" />
-          <span className="sr-only">Toggle sidebar</span>
-        </Button>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="-ml-3">
+              <EllipsisVertical className="h-6 w-6" />
+              <span className="sr-only">Toggle menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <NavContent mobile />
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <div className="flex flex-1 overflow-hidden h-full">
-        {/* Sidebar */}
-        <aside
-          className={`w-64 rounded-xl lg:bg-card lg:block border shadow ${
-            isSidebarOpen ? 'block' : 'hidden'
-          } lg:relative absolute inset-y-0 left-0 z-40 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}
-        >
-          <nav className="h-full overflow-y-auto p-4">
-            {navItems.map((item) => (
-              <Link key={item.href} href={item.href} passHref>
-                <Button
-                  variant={pathname === item.href ? 'secondary' : 'ghost'}
-                  className={`my-1 w-full justify-start ${
-                    pathname === item.href ? 'bg-zinc-100 dark:bg-zinc-800' : ''
-                  }`}
-                  onClick={() => setIsSidebarOpen(false)}
-                >
-                  <item.icon className="mr-2 h-4 w-4" />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
-          </nav>
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block w-64 rounded-xl pt-6">
+          <div className="h-full overflow-y-auto p-4">
+            <NavContent />
+          </div>
         </aside>
 
         {/* Main content */}

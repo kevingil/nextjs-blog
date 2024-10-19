@@ -108,7 +108,7 @@ export default function ContactPage() {
         </Card>
       </div>
       
-      <div className="text-sm text-gray-500 mt-8">
+      <div className="text-sm text-gray-500 mt-8 hidden">
         Last updated: {new Date(pageData.lastUpdated).toLocaleDateString()}
       </div>
     </div>

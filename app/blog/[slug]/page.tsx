@@ -151,7 +151,7 @@ export default function Page({ params }: PostPageProps) {
       <Separator className="my-12" />
 
       <section className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Recommended</h2>
+        <h2 className="text-2xl font-bold mb-6">Other Articles</h2>
         <Suspense fallback={<RecommendedArticlesSkeleton />}>
           <RecommendedArticles slug={slug} />
         </Suspense>

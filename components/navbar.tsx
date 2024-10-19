@@ -22,7 +22,7 @@ import {
 
 import { useUser } from '@/lib/auth';
 import { signOut } from '@/actions/auth';
-import { Home, LogOut } from 'lucide-react';
+import { Home, LogOut, Hexagon } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -33,12 +33,11 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Router, { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ToggleTheme } from "./home/toogle-theme";
-import { Bebas_Neue } from 'next/font/google';
+import { Fjalla_One } from 'next/font/google';
 
-const pd = Bebas_Neue({ weight: '400', subsets: ['latin'] });
+const fjalla = Fjalla_One({ weight: '400', subsets: ['latin'] });
 
 
 interface RouteProps {
@@ -83,10 +82,10 @@ export const Navbar = () => {
 
   }
   return (
-    <header className="shadow-nav backdrop-blur-md w-[90%] md:w-[70%] lg:w-[75%] lg:max-w-screen-xl top-2 mx-auto 
-      sticky border border-indigo-600/10 dark:border-indigo-600/20 z-50 rounded-2xl flex justify-between items-center p-4 bg-card/50 dark:bg-neutral-700/20 mb-12">
-      <Link href="/" className={' font-bold text-2xl flex items-center'}>
-        {title}
+    <header className="shadow-nav border backdrop-blur-xl w-[95%] max-w-6xl top-2 mx-auto
+      sticky border border-indigo-600/10 dark:border-indigo-600/10 z-50 rounded-2xl flex justify-between items-center p-4 bg-card/50 dark:bg-stone-800/40 mb-12">
+      <Link href="/" className="flex items-center">
+        <span className={fjalla.className + ' text-2xl'}>{title}</span>
       </Link>
       {/* <!-- Mobile --> */}
       <div className="flex items-center lg:hidden">
@@ -99,14 +98,13 @@ export const Navbar = () => {
           </SheetTrigger>
 
           <SheetContent
-            side="left"
+            side="right"
             className="flex flex-col justify-between rounded-tr-2xl rounded-br-2xl bg-card border-secondary"
           >
             <div>
               <SheetHeader className="mb-4 ml-4">
                 <SheetTitle className="flex items-center">
                   <Link href="/" className="flex items-center">
-                    <Terminal className="bg-gradient-to-tr border-secondary from-primary via-primary/70 to-primary rounded-lg w-9 h-9 mr-2 border text-white" />
                     Kevin Gil
                   </Link>
                 </SheetTitle>
@@ -130,7 +128,7 @@ export const Navbar = () => {
             <SheetFooter className="flex-col sm:flex-col justify-start items-start">
               <Separator className="mb-2" />
 
-              <ToggleTheme />
+              <ToggleTheme onClick={() => setIsOpen(false)}/>
             </SheetFooter>
           </SheetContent>
         </Sheet>
