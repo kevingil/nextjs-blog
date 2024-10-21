@@ -7,7 +7,8 @@ import { and, eq } from 'drizzle-orm';
 import { verifyToken } from '../lib/auth/session';
 
 export async function getUser() {
-  const sessionCookie = cookies().get('session');
+  const awaitCookies = await cookies();
+  const sessionCookie = awaitCookies.get('session');
   if (!sessionCookie || !sessionCookie.value) {
     return null;
   }
@@ -88,3 +89,5 @@ export async function updateContactPage(data: Partial<ContactPage>): Promise<boo
     return false;
   }
 }
+
+

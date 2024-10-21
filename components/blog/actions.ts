@@ -3,20 +3,8 @@
 import { eq, sql, or, like, and, inArray, desc } from 'drizzle-orm';
 import { db } from '@/db/drizzle';
 import { articles, users, articleTags, tags } from '@/db/schema';
+import { ArticleListItem, ITEMS_PER_PAGE } from './index';
 
-
-const ITEMS_PER_PAGE = 6;
-
-export type ArticleListItem = {
-  id: number;
-  title: string | null;
-  slug: string | null;
-  createdAt: number;
-  image: string | null;
-  content: string | null;
-  author: string | null;
-  tags: (string | null)[];
-}
 
 export async function getArticles(page: number): Promise<{ articles: ArticleListItem[], totalPages: number }> {
   const offset = (page - 1) * ITEMS_PER_PAGE;
@@ -95,6 +83,8 @@ export async function searchArticles(
   }*/
 
   // Perform text search
+  //const embededQuery = getEmbeddings(query);
+  //console.log(embededQuery);
   const textSearchResults = await db
     .select({
       id: articles.id,

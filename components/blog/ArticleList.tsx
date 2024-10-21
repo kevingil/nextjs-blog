@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -17,7 +17,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { getArticles, searchArticles, ArticleListItem } from './actions';
+import { getArticles } from './actions';
+import { searchArticles } from './actions';
+import { ArticleListItem, ITEMS_PER_PAGE } from './index';
 
 
 // Debounce delay in ms

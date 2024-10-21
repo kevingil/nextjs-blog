@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { integer, sqliteTable, text, unique, customType } from 'drizzle-orm/sqlite-core';
 
 // Custom vector type for embeddings
-const float32Array = customType<{
+export const float32Array = customType<{
   data: number[];
   config: { dimensions: number };
   configRequired: true;
