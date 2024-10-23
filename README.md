@@ -19,9 +19,6 @@ Setup your .env
 TURSO_CONNECTION_URL=xxxxxx
 TURSO_AUTH_TOKEN=xxxxxx
 
-# Embeddings and AI features
-OPENAI_API_KEY=sk-xxxxxx
-
 # File uploads
 CDN_BUCKET_NAME=xxxxxx
 CDN_ACCOUNT_ID=xxxxxx
@@ -30,10 +27,6 @@ CDN_ACCESS_KEY_SECRET=xxxxxx
 CDN_SESSION_TOKEN=xxxxxx
 CDN_API_ENDPOINT=xxxxx
 CDN_URL_PREFIX=xxx
-
-# Analytics 
-GA_PROPERTYID=xxxxx
-GA_SERVICE_ACCOUNT_JSON_PATH=/path/to/service-account-key.json
 
 ```
 
