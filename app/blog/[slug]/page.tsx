@@ -39,7 +39,7 @@ type RecommendedArticle = {
 }
 
 export async function generateMetadata({ params }: PostPageProps) {
-  const { slug } = params;
+  const { slug } = await params;
   const article = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
 
   if (article.length === 0) {
@@ -139,8 +139,8 @@ function RecommendedArticlesSkeleton() {
   );
 }
 
-export default function Page({ params }: PostPageProps) {
-  const { slug } = params;
+export default async function Page({ params }: PostPageProps) {
+  const { slug } = await params;
 
   return (
     <div className="container mx-auto py-8">

@@ -1,8 +1,8 @@
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { Fjalla_One } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 
-const fjalla = Fjalla_One({ weight: '400', subsets: ['latin'] });
+const poppins = Poppins({ weight: '400', subsets: ['latin'] });
 
 
 export const FooterSection = () => {
@@ -12,7 +12,7 @@ export const FooterSection = () => {
         <div className="flex flex-col gap-6 md:flex-row md:justify-between w-full">
           <div className="col-span-full md:col-span-1">
             <Link href="#" className="flex font-bold items-center">
-              <h3 className={ fjalla.className + ' text-2xl'}>Kevin Gil</h3>
+              <h3 className={ poppins.className + ' text-2xl'}>Kevin Gil</h3>
             </Link>
           </div>
           <div className="grid grid-cols-2 md:w-1/2">

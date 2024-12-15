@@ -35,9 +35,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ToggleTheme } from "./home/toogle-theme";
-import { Fjalla_One } from 'next/font/google';
+import { Poppins } from 'next/font/google';
 
-const fjalla = Fjalla_One({ weight: '400', subsets: ['latin'] });
+const poppins = Poppins({ weight: '400', subsets: ['latin'] });
 
 
 interface RouteProps {
@@ -85,7 +85,7 @@ export const Navbar = () => {
     <header className="shadow-nav border backdrop-blur-xl w-[95%] max-w-6xl top-2 mx-auto
       sticky border border-indigo-600/10 dark:border-indigo-600/10 z-50 rounded-2xl flex justify-between items-center p-4 bg-card/50 dark:bg-stone-800/40 mb-12">
       <Link href="/" className="flex items-center">
-        <span className={fjalla.className + ' text-2xl'}>{title}</span>
+        <span className={poppins.className + ' text-xl'}>{title}</span>
       </Link>
       {/* <!-- Mobile --> */}
       <div className="flex items-center lg:hidden">

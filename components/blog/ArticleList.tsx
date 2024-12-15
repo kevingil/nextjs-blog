@@ -29,6 +29,7 @@ type ArticleListProps = {
   pagination: boolean;
 }
 
+
 function ArticleCardSkeleton() {
   return (
     <Card>
@@ -177,8 +178,45 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
     fetchArticles();
   }, []); 
 
+  // State to control the animation
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [animate, setAnimate] = useState(false);
+
+  // Intersection Observer
+  useEffect(() => {
+    console.log("useEffect containerRef.current", containerRef.current);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        console.log("entry.isIntersecting", entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setAnimate(true);
+          observer.unobserve(entry.target); 
+        }
+      },
+      {
+        threshold: 0.1, 
+      }
+    );
+
+    if (containerRef.current) {
+      console.log("containerRef.current", containerRef.current);
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      // Clean up on unmount
+      if (observer && containerRef.current) {
+        console.log("observer.unobserve(containerRef.current)");
+        observer.unobserve(containerRef.current);
+      }
+    };
+  }, []);
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:py-8">
+    <div className="grid grid-cols-1 gap-4 sm:py-8"
+     style={{
+      perspective: '23rem',
+     }}>
       {pagination && (
         <div>
           <div className="relative">
@@ -223,6 +261,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
         </div>
       )}
 
+      <div ref={containerRef} className={`hide-card-home ${animate ? 'animate-card-home' : ''}`}>
       {loading ? (
         <ArticlesSkeleton />
       ) : articles.length === 0 ? (
@@ -233,7 +272,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
           }
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
+        <div className={`grid grid-cols-1 gap-4`}>
           {articles.map((article) => (
             <Card key={article.id}>
               <CardContent className="p-0">
@@ -270,6 +309,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
           ))}
         </div>
       )}
+      </div>
 
       {pagination && totalPages > 1 && (
         <Pagination>

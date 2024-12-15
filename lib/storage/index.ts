@@ -27,7 +27,7 @@ const s3Client = new S3Client({
     endpoint: process.env.S3_ENDPOINT,
     credentials: {
         accessKeyId: process.env.S3_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+        secretAccessKey: process.env.S3_ACCESS_KEY_SECRET!,
     },
 });
 
@@ -51,7 +51,7 @@ export async function listFiles(prefix: string | null): Promise<{ files: FileDat
         lastModified: item.LastModified!,
         size: formatByteSize(item.Size!),
         sizeRaw: item.Size!,
-        url: `${process.env.S3_URL_PREFIX}/${item.Key}`,
+        url: `${process.env.NEXT_PUBLIC_S3_URL_PREFIX}/${item.Key}`,
         isImage: isImageFile(item.Key!),
     })) || [];
     files.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
