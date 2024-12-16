@@ -17,8 +17,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { getArticles } from './actions';
-import { searchArticles } from './actions';
+import { getArticles, searchArticles, getPopularTags } from './actions';
 import { ArticleListItem, ITEMS_PER_PAGE } from './index';
 
 
@@ -70,13 +69,13 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>(searchParams.get('search') || '');
-  const [recentTags, setRecentTags] = useState<string[]>([]);
+  const [recentTags, setRecentTags] = useState<string[]>(['All']);
 
   // Update URL without triggering a navigation
   // for tags, pages, and search
   const updateURLQuietly = useCallback((newParams: { page?: number; search?: string; tag?: string | null }) => {
     const params = new URLSearchParams(searchParams);
-    
+
     if (newParams.page) {
       params.set('page', newParams.page.toString());
     }
@@ -84,6 +83,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
     if (newParams.search !== undefined) {
       if (newParams.search) {
         params.set('search', newParams.search);
+        params.delete('tag');
       } else {
         params.delete('search');
       }
@@ -98,18 +98,19 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
     }
 
     window.history.replaceState({}, '', `?${params.toString()}`);
+
   }, [searchParams]);
 
   // On every action, query params are updated first
   // then we fetch articles based on current search params
-  const fetchArticles = useCallback(async (searchValue: string = searchTerm, pageNum: number = page) => {
+  const fetchArticles = useCallback(async (searchValue: string, pageNum: number, tag: string | null = searchTag) => {
     setLoading(true);
     try {
       let result;
       if (searchValue) {
-        result = await searchArticles(searchValue, pageNum);
+        result = await searchArticles(searchValue, pageNum, tag);
       } else {
-        result = await getArticles(pageNum);
+        result = await getArticles(pageNum, tag);
       }
       setArticles(result.articles);
       setTotalPages(result.totalPages);
@@ -120,11 +121,6 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
     }
   }, []);
 
-  // Initialize recent tags
-  // To do: get popular tags from database
-  useEffect(() => {
-    setRecentTags(['React', 'Next.js', 'TypeScript', 'JavaScript', 'Web Development']);
-  }, []);
 
   // Debounce implementation function
   // thanks to: https://blog.alexefimenko.com/posts/debounce-react
@@ -145,8 +141,9 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
   const debouncedSearch = useCallback(
     debounce((value: string) => {
       setPage(1);
+      setSearchTag(null);
       updateURLQuietly({ search: value, page: 1 });
-      fetchArticles(value, 1);
+      fetchArticles(value, 1, searchTag);
     }, SEARCH_DELAY),
     [updateURLQuietly, fetchArticles]
   );
@@ -163,19 +160,23 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
     setSearchTag(newTag);
     setPage(1);
     updateURLQuietly({ tag: newTag, page: 1 });
-    fetchArticles();
+    fetchArticles(searchTerm, 1, newTag);
   };
 
   // Handle pagination
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     updateURLQuietly({ page: newPage });
-    fetchArticles(searchTerm, newPage);
+    fetchArticles(searchTerm, newPage, searchTag);
   };
 
   // Initial data fetch
   useEffect(() => {
-    fetchArticles();
+    getPopularTags().then((tags) => {
+      const allTags = ['All', ...tags.tags];
+      setRecentTags(allTags);
+    });
+    fetchArticles(searchTerm, 1, searchTag);
   }, []); 
 
   // State to control the animation
@@ -237,7 +238,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
             {recentTags.map((tag) => (
               <Badge
                 key={tag}
-                variant={searchTag === tag ? "default" : "secondary"}
+                variant={searchTag === tag || (searchTag === null && tag === 'All') ? "default" : "secondary"}
                 className="cursor-pointer hover:bg-primary/90"
                 onClick={() => handleTagClick(tag)}
               >

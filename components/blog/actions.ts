@@ -4,11 +4,33 @@ import { eq, sql, or, like, and, inArray, desc } from 'drizzle-orm';
 import { db } from '@/db/drizzle';
 import { articles, users, articleTags, tags } from '@/db/schema';
 import { ArticleListItem, ITEMS_PER_PAGE } from './index';
+import { log } from 'console';
 
-
-export async function getArticles(page: number): Promise<{ articles: ArticleListItem[], totalPages: number }> {
+export async function getArticles(page: number, tag: string | null = null): Promise<{ articles: ArticleListItem[], totalPages: number }> {
   const offset = (page - 1) * ITEMS_PER_PAGE;
 
+  // Base conditions
+  const conditions: any[] = [eq(articles.isDraft, false)];
+
+  if (tag !== null && tag !== 'All') {
+    
+    const tagResult = await db
+      .select({ id: tags.id })
+      .from(tags)
+      .where(eq(tags.name, tag));
+
+    const tagId = tagResult[0]?.id;
+
+    if (!tagId) {
+      return { articles: [], totalPages: 0 };
+    }
+    console.log("tagId", tagId);
+
+    // Filter articles by tag ID
+    conditions.push(eq(articleTags.tagId, tagId));
+  }
+
+  // Main articles query
   const articlesData = await db
     .select({
       id: articles.id,
@@ -20,18 +42,24 @@ export async function getArticles(page: number): Promise<{ articles: ArticleList
       author: users.name,
     })
     .from(articles)
-    .leftJoin(users, eq(articles.author, users.id))
-    .where(eq(articles.isDraft, false))
+    .innerJoin(users, eq(articles.author, users.id))
+    .leftJoin(articleTags, eq(articles.id, articleTags.articleId))
+    .where(and(...conditions))
+    .groupBy(articles.id)
     .limit(ITEMS_PER_PAGE)
     .offset(offset);
 
-  const totalArticles = await db
-    .select({ count: sql<number>`count(*)` })
+  // For pagination
+  const totalArticlesResult = await db
+    .select({ count: sql<number>`count(DISTINCT ${articles.id})` })
     .from(articles)
-    .where(eq(articles.isDraft, false));
+    .leftJoin(articleTags, eq(articles.id, articleTags.articleId))
+    .where(and(...conditions));
 
-  const totalPages = Math.ceil(Number(totalArticles[0].count) / ITEMS_PER_PAGE);
+  const totalArticles = Number(totalArticlesResult[0].count);
+  const totalPages = Math.ceil(totalArticles / ITEMS_PER_PAGE);
 
+  // Add tags to articles
   const articlesWithTags = await Promise.all(
     articlesData.map(async (article) => {
       const tagData = await db
@@ -54,37 +82,11 @@ export async function getArticles(page: number): Promise<{ articles: ArticleList
 export async function searchArticles(
   query: string,
   page: number = 1,
+  tag: string | null = null
 ): Promise<{ articles: ArticleListItem[], totalPages: number }> {
   const offset = (page - 1) * ITEMS_PER_PAGE;
   let searchResults: Set<number> = new Set();
-  
-  /* Try embedding search first if query is long enough
-  if (query.length > 3) {
-    try {
-      const embedding = await createEmbedding(query);
-      const embeddingResults = await db.run(
-        sql`
-          SELECT id, vector_distance_cos(embedding, vector32(${JSON.stringify(embedding)})) as distance
-          FROM articles
-          WHERE embedding IS NOT NULL
-          AND is_draft = 0
-          AND vector_distance_cos(embedding, vector32(${JSON.stringify(embedding)})) > 0.7
-          ORDER BY distance DESC
-          LIMIT ${itemsPerPage}
-        `
-      ) as { id: number; distance: number }[];
 
-      embeddingResults.forEach(result => searchResults.add(result.id));
-    } catch (error) {
-      console.error('Embedding search failed:', error);
-      // Continue with text search only
-    }
-      
-  }*/
-
-  // Perform text search
-  //const embededQuery = getEmbeddings(query);
-  //console.log(embededQuery);
   const textSearchResults = await db
     .select({
       id: articles.id,
@@ -161,3 +163,15 @@ export async function searchArticles(
 
   return { articles: articlesWithTags, totalPages };
 }
+
+export async function getPopularTags(): Promise<{ tags: string[] }> {
+  const popularTags = await db
+    .select({ tagName: tags.name })
+    .from(articleTags)
+    .innerJoin(tags, eq(articleTags.tagId, tags.id))
+    .groupBy(tags.name)
+    .orderBy(desc(sql<number>`count(*)`))
+    .limit(10);
+  return { tags: popularTags.map((tag) => tag.tagName || '') };
+}
+
