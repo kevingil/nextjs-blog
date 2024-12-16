@@ -7,8 +7,8 @@ const poppins = Poppins({ weight: '400', subsets: ['latin'] });
 
 export const FooterSection = () => {
   return (
-    <footer id="footer" className="container max-w-7xl pt-24 xl:py-32 mx-auto">
-      <div className="p-10 bg-card border border-secondary rounded-2xl shadow-nav">
+    <footer id="footer" className="container max-w-7xl pt-24 mt-auto xl:py-32 mx-auto">
+      <div className="p-10 bg-card border border-secondary xl:rounded-b-2xl  rounded-2xl rounded-b-none shadow-nav">
         <div className="flex flex-col gap-6 md:flex-row md:justify-between w-full">
           <div className="col-span-full md:col-span-1">
             <Link href="#" className="flex font-bold items-center">

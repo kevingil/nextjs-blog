@@ -16,17 +16,18 @@ Setup your .env
 
 ```bash
 # Database 
-TURSO_CONNECTION_URL=xxxxxx
-TURSO_AUTH_TOKEN=xxxxxx
-
-# File uploads
-CDN_BUCKET_NAME=xxxxxx
-CDN_ACCOUNT_ID=xxxxxx
-CDN_ACCESS_KEY_ID=xxxxxx
-CDN_ACCESS_KEY_SECRET=xxxxxx
-CDN_SESSION_TOKEN=xxxxxx
-CDN_API_ENDPOINT=xxxxx
-CDN_URL_PREFIX=xxx
+TURSO_CONNECTION_URL=http://127.0.0.1:8080 # dev url, replace with your turso db url
+TURSO_AUTH_TOKEN=xxxxxxxxxxxxx
+#AI
+OPENAI_API_KEY=sk-proj-xxxxxx
+#File uploads
+S3_BUCKET=xxxxxxxxxxxxx
+S3_ACCOUNT_ID=xxxxxxxxxxxxx
+S3_ACCESS_KEY_ID=xxxxxxxxxxxxx
+S3_ACCESS_KEY_SECRET=xxxxxxxxxxxxx
+S3_SESSION_TOKEN=xxxxxxxxxxxxx
+S3_ENDPOINT=xxxxxxxxxxxxx
+NEXT_PUBLIC_S3_URL_PREFIX=xxxxxxxxxxxxx
 
 ```
 

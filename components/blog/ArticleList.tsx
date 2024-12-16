@@ -51,7 +51,7 @@ function ArticleCardSkeleton() {
 
 export function ArticlesSkeleton() {
   return (
-    <div className="grid grid-cols-1 gap-4">
+    <div className="grid grid-cols-1 gap-4 w-full">
       {[1, 2, 3, 4, 5, 6].map((i) => (
         <ArticleCardSkeleton key={i} />
       ))}
@@ -71,8 +71,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
   const [searchTerm, setSearchTerm] = useState<string>(searchParams.get('search') || '');
   const [recentTags, setRecentTags] = useState<string[]>(['All']);
 
-  // Update URL without triggering a navigation
-  // for tags, pages, and search
+  // Update URL without triggering navigation, for tags, pages, and search
   const updateURLQuietly = useCallback((newParams: { page?: number; search?: string; tag?: string | null }) => {
     const params = new URLSearchParams(searchParams);
 
@@ -214,12 +213,12 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
   }, []);
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:py-8"
+    <div className="grid grid-cols-1 gap-4 sm:py-8 w-full"
      style={{
-      perspective: '23rem',
+      perspective: '20rem',
      }}>
       {pagination && (
-        <div>
+        <div className='w-full'>
           <div className="relative">
             <Input
               type="search"
@@ -262,7 +261,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
         </div>
       )}
 
-      <div ref={containerRef} className={`hide-card-home ${animate ? 'animate-card-home' : ''}`}>
+      <div ref={containerRef} className={`${animate ? 'animate-card-home' : 'hide-card-home'}`}>
       {loading ? (
         <ArticlesSkeleton />
       ) : articles.length === 0 ? (
@@ -273,7 +272,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
           }
         </div>
       ) : (
-        <div className={`grid grid-cols-1 gap-4`}>
+        <div className={`grid grid-cols-1 gap-4 w-full`}>
           {articles.map((article) => (
             <Card key={article.id}>
               <CardContent className="p-0">

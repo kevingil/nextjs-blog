@@ -32,7 +32,7 @@ export default function RootLayout({
       lang="en"
       className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
     >
-      <body className="min-h-[100dvh]">
+      <body className="min-h-[100dvh] flex flex-col">
         <UserProvider userPromise={userPromise}>
 
 
@@ -44,7 +44,7 @@ export default function RootLayout({
           >
             <Navbar />
 
-            <main className="max-w-6xl mx-auto px-2 sm:px-6">
+            <main className="w-full max-w-6xl mx-auto px-2 sm:px-6">
               {children}
             </main>
 
