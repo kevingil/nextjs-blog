@@ -6,6 +6,8 @@ import { getUser } from '@/db/queries';
 import { FooterSection } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/home/theme-provider";
+import Aurora from "@/components/home/aurora";
+
 
 export const metadata: Metadata = {
   title: 'Kevin Gil',
@@ -32,7 +34,7 @@ export default function RootLayout({
       lang="en"
       className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
     >
-      <body className="min-h-[100dvh] flex flex-col">
+      <body className="min-h-[100dvh] flex flex-col relative">
         <UserProvider userPromise={userPromise}>
 
 
@@ -44,6 +46,7 @@ export default function RootLayout({
           >
             <Navbar />
 
+            <Aurora/>
             <main className="w-full max-w-6xl mx-auto px-2 sm:px-6">
               {children}
             </main>

@@ -3,7 +3,7 @@
 export const HeroSection = () => {
 
   return (
-    <section id="hero" className="container py-32 pb-48 mx-auto">
+    <section id="hero" className="container py-32 pb-48 mx-auto relative z-10">
       <div className="flex flex-col gap-0 px-4">
           <h1 className={'text-xl sm:text-2xl tracking-tight'}>
             Software Engineer in San Francisco

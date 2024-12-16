@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import GithubIcon from "@/components/icons/github-icon";
 import LinkedInIcon from "@/components/icons/linkedin-icon";
 
+
 export const metadata = {
   title: "Kevin Gil",
   description: "Software Engineer in San Francisco.",
@@ -28,14 +29,14 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <div>
+    <div className="z-10">
       <HeroSection />
       <Suspense fallback={<ArticlesSkeleton />}>
       <ArticlesList
         pagination={false} />
       </Suspense>
       
-      <section className="my-16">
+      <div className="my-16 relative z-10">
           <div className="flex flex-col sm:flex-row gap-4 mx-auto">
             <Card className="border w-full rounded-lg group">
               <a href="https://github.com/kevingil" target="_blank">
@@ -64,7 +65,7 @@ export default function HomePage() {
               </a>
             </Card>
           </div>
-      </section>
+      </div>
 
     </div>
   );
