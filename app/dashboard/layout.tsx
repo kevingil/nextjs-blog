@@ -59,7 +59,7 @@ export default function DashboardLayout({
   );
 
   return (
-    <div className="flex flex-col min-h-[80dvh] max-w-7xl mx-auto w-full">
+    <div className="flex flex-col min-h-[80dvh] max-w-7xl mx-auto w-full z-[1]">
       {/* Mobile header */}
       <div className="lg:hidden bg-transparent flex justify-between items-center gap-2 bg-card mb-12 rounded-xl p-4">
         <div className="flex items-center">

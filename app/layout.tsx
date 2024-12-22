@@ -47,7 +47,7 @@ export default function RootLayout({
             <Navbar />
 
             <Aurora/>
-            <main className="w-full max-w-6xl mx-auto px-2 sm:px-6">
+            <main className="w-full max-w-6xl mx-auto px-2 sm:px-6 z-[1]">
               {children}
             </main>
 

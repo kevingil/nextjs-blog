@@ -17,7 +17,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Input } from "@/components/ui/input";
-import { getArticles, searchArticles, getPopularTags } from './actions';
+import { getArticles, searchArticles, getPopularTags } from './search';
 import { ArticleListItem, ITEMS_PER_PAGE } from './index';
 
 

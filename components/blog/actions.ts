@@ -1,177 +1,113 @@
 'use server'
 
-import { eq, sql, or, like, and, inArray, desc } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { db } from '@/db/drizzle';
-import { articles, users, articleTags, tags } from '@/db/schema';
-import { ArticleListItem, ITEMS_PER_PAGE } from './index';
-import { log } from 'console';
+import { Article, articles, articleTags, NewArticle, tags } from '@/db/schema';
+import { v4 as uuidv4 } from 'uuid';
 
-export async function getArticles(page: number, tag: string | null = null): Promise<{ articles: ArticleListItem[], totalPages: number }> {
-  const offset = (page - 1) * ITEMS_PER_PAGE;
 
-  // Base conditions
-  const conditions: any[] = [eq(articles.isDraft, false)];
+export async function createArticle({
+    title,
+    content,
+    image,
+    tags: newTags,
+    isDraft,
+    authorId,
+  }: {
+    title: string;
+    content: string;
+    image?: string;
+    tags: string[];
+    isDraft: boolean;
+    authorId: number;
+  }) {
 
-  if (tag !== null && tag !== 'All') {
-    
-    const tagResult = await db
-      .select({ id: tags.id })
-      .from(tags)
-      .where(eq(tags.name, tag));
+    let slug = title.toLowerCase().replace(/\s+/g, '-');
 
-    const tagId = tagResult[0]?.id;
+    const existingArticle = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
 
-    if (!tagId) {
-      return { articles: [], totalPages: 0 };
+    if (existingArticle.length > 0) {
+      slug = slug + '-' + uuidv4().substring(0, 4);
     }
-    console.log("tagId", tagId);
 
-    // Filter articles by tag ID
-    conditions.push(eq(articleTags.tagId, tagId));
+    const newArticle: NewArticle = {
+      image: image || null,
+      slug: slug,
+      title: title,
+      content: content,
+      isDraft: isDraft,
+      embedding: null,
+      author: authorId,
+    }
+
+    try {
+      const postedArticle = await db.insert(articles).values(newArticle).returning();
+      return postedArticle[0] as Article;
+    } catch (error) {
+      console.error('Error creating article', error);
+      throw new Error('Failed to create article');
+    }
+    
+}
+
+
+export async function getArticle(slug: string) {
+  const article = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
+  
+  if (article.length === 0) {
+    return null;
   }
 
-  // Main articles query
-  const articlesData = await db
-    .select({
-      id: articles.id,
-      title: articles.title,
-      slug: articles.slug,
-      image: articles.image,
-      content: articles.content,
-      createdAt: articles.createdAt,
-      author: users.name,
-    })
-    .from(articles)
-    .innerJoin(users, eq(articles.author, users.id))
-    .leftJoin(articleTags, eq(articles.id, articleTags.articleId))
-    .where(and(...conditions))
-    .groupBy(articles.id)
-    .limit(ITEMS_PER_PAGE)
-    .offset(offset);
+  const articleTagsData = await db
+    .select({ name: tags.name })
+    .from(tags)
+    .innerJoin(articleTags, eq(articleTags.tagId, tags.id))
+    .where(eq(articleTags.articleId, article[0].id));
 
-  // For pagination
-  const totalArticlesResult = await db
-    .select({ count: sql<number>`count(DISTINCT ${articles.id})` })
-    .from(articles)
-    .leftJoin(articleTags, eq(articles.id, articleTags.articleId))
-    .where(and(...conditions));
-
-  const totalArticles = Number(totalArticlesResult[0].count);
-  const totalPages = Math.ceil(totalArticles / ITEMS_PER_PAGE);
-
-  // Add tags to articles
-  const articlesWithTags = await Promise.all(
-    articlesData.map(async (article) => {
-      const tagData = await db
-        .select({ tagName: tags.name })
-        .from(articleTags)
-        .innerJoin(tags, eq(articleTags.tagId, tags.id))
-        .where(eq(articleTags.articleId, article.id));
-
-      return {
-        ...article,
-        tags: tagData.map((tag) => tag.tagName),
-      };
-    })
-  );
-
-  return { articles: articlesWithTags, totalPages };
+  return {
+    ...article[0],
+    tags: articleTagsData,
+  };
 }
 
+export async function updateArticle({
+  slug,
+  title,
+  content,
+  image,
+  tags: newTags,
+  isDraft,
+}: {
+  slug: string;
+  title: string;
+  content: string;
+  image?: string;
+  tags: string[];
+  isDraft: boolean;
+}) {
+  const article = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
+  
+  if (article.length === 0) {
+    throw new Error('Article not found');
+  }
 
-export async function searchArticles(
-  query: string,
-  page: number = 1,
-  tag: string | null = null
-): Promise<{ articles: ArticleListItem[], totalPages: number }> {
-  const offset = (page - 1) * ITEMS_PER_PAGE;
-  let searchResults: Set<number> = new Set();
+  const articleId = article[0].id;
 
-  const textSearchResults = await db
-    .select({
-      id: articles.id,
-    })
-    .from(articles)
-    .where(
-      and(
-        eq(articles.isDraft, false),
-        or(
-          like(articles.title, `%${query}%`),
-          like(articles.content, `%${query}%`)
-        )
-      )
-    )
-    .limit(ITEMS_PER_PAGE);
+  // Update article
+  await db.update(articles).set({ title, content, image }).where(eq(articles.id, articleId));
 
-  // Combine results
-  textSearchResults.forEach(result => searchResults.add(result.id));
+  // Delete existing tags
+  await db.delete(articleTags).where(eq(articleTags.articleId, articleId));
 
-  // Get full article data for all found IDs
-  const articlesData = await db
-    .select({
-      id: articles.id,
-      title: articles.title,
-      slug: articles.slug,
-      image: articles.image,
-      content: articles.content,
-      createdAt: articles.createdAt,
-      author: users.name,
-    })
-    .from(articles)
-    .leftJoin(users, eq(articles.author, users.id))
-    .where(
-      and(
-        eq(articles.isDraft, false),
-        inArray(articles.id, Array.from(searchResults))
-      )
-    )
-    .orderBy(desc(articles.createdAt))
-    .limit(ITEMS_PER_PAGE)
-    .offset(offset);
+  // Add new tags
+  for (const tagName of newTags) {
+    let tag = await db.select().from(tags).where(eq(tags.name, tagName)).limit(1);
+    
+    if (tag.length === 0) {
+      const [newTag] = await db.insert(tags).values({ name: tagName }).returning();
+      tag = [newTag];
+    }
 
-  // Get total count for pagination
-  const totalArticles = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(articles)
-    .where(
-      and(
-        eq(articles.isDraft, false),
-        or(
-          like(articles.title, `%${query}%`),
-          like(articles.content, `%${query}%`)
-        )
-      )
-    );
-
-  const totalPages = Math.ceil(Number(totalArticles[0].count) / ITEMS_PER_PAGE);
-
-  // Add tags to articles
-  const articlesWithTags = await Promise.all(
-    articlesData.map(async (article) => {
-      const tagData = await db
-        .select({ tagName: tags.name })
-        .from(articleTags)
-        .innerJoin(tags, eq(articleTags.tagId, tags.id))
-        .where(eq(articleTags.articleId, article.id));
-
-      return {
-        ...article,
-        tags: tagData.map((tag) => tag.tagName),
-      };
-    })
-  );
-
-  return { articles: articlesWithTags, totalPages };
+    await db.insert(articleTags).values({ articleId, tagId: tag[0].id });
+  }
 }
-
-export async function getPopularTags(): Promise<{ tags: string[] }> {
-  const popularTags = await db
-    .select({ tagName: tags.name })
-    .from(articleTags)
-    .innerJoin(tags, eq(articleTags.tagId, tags.id))
-    .groupBy(tags.name)
-    .orderBy(desc(sql<number>`count(*)`))
-    .limit(10);
-  return { tags: popularTags.map((tag) => tag.tagName || '') };
-}
-

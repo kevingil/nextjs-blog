@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useUser } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Pencil, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useEffect, useState } from 'react';
 import { getArticles, deleteArticle, ArticleRow } from './actions';
@@ -39,6 +39,18 @@ export default function ArticlesPage() {
 
       <Card>
         <CardContent>
+          <div className="flex justify-end items-center py-4">
+            <Button >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Generate
+            </Button>
+            <Link href="/dashboard/blog/new">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                New Article
+              </Button>
+            </Link>
+          </div>
           <Table className="mt-4">
             <TableHeader>
               <TableRow>

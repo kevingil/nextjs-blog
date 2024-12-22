@@ -29,7 +29,7 @@ export const metadata = {
 
 export default function HomePage() {
   return (
-    <div className="z-10">
+    <div className="">
       <HeroSection />
       <Suspense fallback={<ArticlesSkeleton />}>
       <ArticlesList
