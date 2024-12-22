@@ -34,6 +34,10 @@ NEXT_PUBLIC_S3_URL_PREFIX=xxxxxxxxxxxxx
 Then, run the database migrations and seed the database with a default user:
 
 ```bash
+# For local development
+turso dev --db-file local.db
+
+# Setup and seed database
 pnpm db:migrate
 pnpm db:seed
 ```
