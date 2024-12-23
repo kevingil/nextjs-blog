@@ -35,6 +35,7 @@ export default function RootLayout({
       className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
     >
       <body className="min-h-[100dvh] flex flex-col relative">
+
         <UserProvider userPromise={userPromise}>
 
 
@@ -44,18 +45,18 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
+              <Navbar />
 
-            <Aurora/>
-            <main className="w-full max-w-6xl mx-auto px-2 sm:px-6 z-[1]">
-              {children}
-            </main>
+              <Aurora />
+              <main className="w-full max-w-6xl mx-auto px-2 sm:px-6 z-[1]" data-vaul-drawer-wrapper="">
+                {children}
+              </main>
 
-            <FooterSection />
-
+              <FooterSection />
           </ThemeProvider>
 
         </UserProvider>
+
       </body>
     </html>
   );
