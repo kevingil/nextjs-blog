@@ -14,7 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { updateArticle, getArticle, createArticle } from './actions';
 import Link from 'next/link';
 import { Article } from '@/db/schema';
-import { Checkbox } from '@radix-ui/react-checkbox';
+import { Switch } from '@/components/ui/switch';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -31,8 +31,9 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
   const { user } = useUser();
   const isNew = params.slug === 'new';
   const [isLoading, setIsLoading] = useState(false);
+  const [article, setArticle] = useState<Article | null>(null);
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<ArticleFormData>({
+  const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm<ArticleFormData>({
     resolver: zodResolver(articleSchema),
   });
 
@@ -50,6 +51,8 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
       if (params.slug) {
         const article = await getArticle(params.slug);
         if (article) {
+          setArticle(article);
+          console.log("is draft", article.isDraft);
           setValue('title', article.title);
           setValue('content', article.content);
           setValue('image', article.image || '');
@@ -146,9 +149,14 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
               />
               {errors.tags && <p className="text-red-500">{errors.tags.message}</p>}
             </div>
-            <div className='flex items-center'>
-              <label htmlFor="isDraft">Save as draft</label>
-              <Checkbox {...register('isDraft')} /> 
+            <div className='flex items-center gap-2 py-2'>
+              <label htmlFor="isDraft">Published </label>
+              <Switch {...register('isDraft')} checked={!article?.isDraft} onCheckedChange={(checked) => {
+                if (article) {
+                  setArticle({...article, isDraft: !checked});
+                }
+                setValue('isDraft', !checked);
+              }} /> 
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
