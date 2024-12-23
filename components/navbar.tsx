@@ -75,11 +75,9 @@ export const Navbar = () => {
 
 
   async function handleSignOut() {
-
     setUser(null);
     await signOut();
     router.push('/');
-
   }
   return (
     <header className="shadow-nav border backdrop-blur-xl w-[95%] max-w-6xl top-2 mx-auto

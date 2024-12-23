@@ -1,3 +1,4 @@
+
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
@@ -20,18 +21,17 @@ export const viewport: Viewport = {
 
 const manrope = Manrope({ subsets: ['latin'] });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
 
-  let userPromise = getUser();
-  
+  const userPromise = getUser();
 
   return (
     <html
-      lang="en"
+      lang="en" suppressHydrationWarning
       className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
     >
       <body className="min-h-[100dvh] flex flex-col relative">
@@ -41,8 +41,8 @@ export default function RootLayout({
 
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
-            enableSystem
+            defaultTheme="light"
+            enableSystem={false}
             disableTransitionOnChange
           >
               <Navbar />

@@ -5,8 +5,9 @@ import { users, aboutPage, AboutPage, contactPage, ContactPage } from './schema'
 import { cookies } from 'next/headers';
 import { and, eq } from 'drizzle-orm';
 import { verifyToken } from '../lib/auth/session';
+import { User } from '@/db/schema';
 
-export async function getUser() {
+export async function getUser(): Promise<User | null> {
   const awaitCookies = await cookies();
   const sessionCookie = awaitCookies.get('session');
   if (!sessionCookie || !sessionCookie.value) {
