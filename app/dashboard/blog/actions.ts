@@ -1,7 +1,7 @@
 'use server'
 import { db } from '@/db/drizzle'
 import { Article, articles, articleTags, tags, users } from '@/db/schema'
-import { eq, not, and, sql } from 'drizzle-orm'
+import { eq, not, and, sql, desc } from 'drizzle-orm'
 
 
 export type ArticleRow = {
@@ -110,6 +110,7 @@ export async function getArticles(): Promise<ArticleRow[]> {
     .leftJoin(articleTags, eq(articles.id, articleTags.articleId))
     .leftJoin(tags, eq(articleTags.tagId, tags.id))
     .groupBy(articles.id)
+    .orderBy(desc(articles.createdAt))
     .all()
 
   return articlesWithTags.map(article => ({

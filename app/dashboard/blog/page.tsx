@@ -155,7 +155,7 @@ export default function ArticlesPage() {
                     <Link href={`/dashboard/blog/edit/${article.slug}`} className="hover:underline">{article.title}</Link>
                   </TableCell>
                   <TableCell>{article.tags.join(', ')}</TableCell>
-                  <TableCell>{new Date(article.createdAt * 1000).toLocaleDateString()}</TableCell>
+                  <TableCell>{new Date(article.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>{article.isDraft ? 'Draft' : 'Published'}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
