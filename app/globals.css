@@ -88,6 +88,20 @@ html {
   }
 }
 
+code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: #ffbd43;
+  background: #434343;
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.3rem;
+}
+
+.hljs {
+  border-radius: 1rem !important;
+  margin: 1rem 0 !important;
+}
+
 
 /*
 Go Blog CSS

@@ -3,14 +3,14 @@
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { notFound, useParams } from 'next/navigation';
 import { format } from 'date-fns';
-import { marked } from 'marked';
+import { marked, Token } from 'marked';
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArticleData, getArticleData, getRecommendedArticles, RecommendedArticle } from '@/app/dashboard/blog/actions';
 import { useSearchParams } from 'next/navigation';
-
+import hljs from 'highlight.js';
 
 function ArticleSkeleton() {
   return (
@@ -130,6 +130,18 @@ export default function Page() {
 
  function ArticleContent({ slug, articleData }: { slug: string, articleData: ArticleData | null }) {
   const content = articleData?.article;
+
+
+  marked.use({
+    renderer: {
+      code(this: any, token: Token & {lang?: string, text: string}) {
+        const lang = token.lang && hljs.getLanguage(token.lang) ? token.lang : 'plaintext';
+        const highlighted = hljs.highlight(token.text, { language: lang }).value;
+        console.log("highlighted", highlighted);
+        return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+      }
+    }
+  });
 
   return (
     <article className="max-w-4xl mx-auto">

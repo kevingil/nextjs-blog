@@ -8,6 +8,7 @@ import { FooterSection } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/home/theme-provider";
 import Aurora from "@/components/home/aurora";
+import 'highlight.js/styles/base16/snazzy.css';
 
 
 export const metadata: Metadata = {
