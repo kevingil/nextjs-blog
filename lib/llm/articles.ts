@@ -4,6 +4,8 @@ import { BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messag
 import { StateGraph } from "@langchain/langgraph";
 import { MemorySaver, Annotation, messagesStateReducer } from "@langchain/langgraph";
 import { createArticle } from "@/components/blog/actions";
+import { generateArticleImage } from "../images/generation";
+import { DEFAULT_IMAGE_PROMPT } from "../images/const";
 
 // Store an array of messages in state
 const StateAnnotation = Annotation.Root({
@@ -91,6 +93,12 @@ export async function generateArticle(prompt: string, title: string, authorId: n
     isDraft: false,
     authorId: authorId,
   });
+
+  try {
+    await generateArticleImage(DEFAULT_IMAGE_PROMPT[Math.floor(Math.random() * DEFAULT_IMAGE_PROMPT.length)], newArticle.id);
+  } catch (error) {
+    console.error("Error generating article image", error);
+  }
 
   return newArticle;
 }

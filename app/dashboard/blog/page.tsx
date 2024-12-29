@@ -98,6 +98,7 @@ export default function ArticlesPage() {
                   <Input
                     id="title"
                     type="text"
+                    placeholder="Title will be used by the AI to generate the article"
                     value={aiArticleTitle}
                     onChange={(e) => setAiArticleTitle(e.target.value)}
                     required
@@ -111,6 +112,7 @@ export default function ArticlesPage() {
                   <Textarea
                     id="prompt"
                     className="h-48"
+                    placeholder="Addidional instructions"
                     value={aiArticlePrompt}
                     onChange={(e) => setAiArticlePrompt(e.target.value)}
                     required
