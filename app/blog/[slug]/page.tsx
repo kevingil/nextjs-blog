@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { notFound, useParams } from 'next/navigation';
+import { notFound, redirect, useParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { marked, Token } from 'marked';
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
@@ -97,14 +97,16 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    console.log("previewDraft", previewDraft);
     const loadData = async () => {
       const data = await getArticleData(slug as string);
       setArticleData(data);
       if (!data) {
-        notFound();
+        redirect('/404');
       }
-      if (data.article.isDraft && !previewDraft) {
-        notFound();
+      if (data.article.isDraft && (previewDraft !== 'true')) {
+        console.log("previewDraft not true, notFound");
+        redirect('/404');
       }
     };
     loadData();

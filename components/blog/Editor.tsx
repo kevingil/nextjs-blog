@@ -15,6 +15,7 @@ import { updateArticle, getArticle, createArticle } from './actions';
 import Link from 'next/link';
 import { Article } from '@/db/schema';
 import { Switch } from '@/components/ui/switch';
+import { ArrowLeftIcon, ExternalLinkIcon } from '@radix-ui/react-icons';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -117,7 +118,12 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6">
           <CardContent className="space-y-4">
             <div>
-              <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Title</label>
+              <div className='flex items-center justify-between gap-2 my-4'>
+                <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Title</label>
+                  <Link href={`/blog/${params.slug}${article?.isDraft ? '?previewDraft=true' : ''}`} target="_blank" className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
+                    See Article <ExternalLinkIcon className="w-4 h-4" />
+                  </Link>
+              </div>
               <Input
                 {...register('title')}
                 placeholder="Article Title"
