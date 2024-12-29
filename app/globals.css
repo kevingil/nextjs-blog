@@ -37,6 +37,9 @@ html {
     --input: 20 5.9% 90%;
     --ring: 239 83.5% 66.7%;
     --radius: 0.5rem;
+
+    --code-background: #ececec;
+    --code-text: #333;
   }
 
   .dark {
@@ -67,6 +70,9 @@ html {
     --border: 12 6.5% 15.1%;
     --input: 12 6.5% 15.1%;
     --ring: 239 83.5% 66.7%;
+
+    --code-background: #393242ce;
+    --code-text: #e3e3e3;
   }
 }
 
@@ -91,10 +97,12 @@ html {
 code {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.9rem;
-  color: #ffbd43;
-  background: #434343;
+  color: var(--code-text);
+  background: var(--code-background);
   border-radius: 0.5rem;
   padding: 0.25rem 0.3rem;
+  border: 1px solid #8a8a8a41;
+  margin: 0rem 0.25rem;
 }
 
 .hljs {
@@ -102,6 +110,52 @@ code {
   margin: 1rem 0 !important;
 }
 
+
+.blog-post {
+  font-size: 1rem;
+}
+
+.blog-post h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+} 
+
+.blog-post h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+} 
+
+.blog-post h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}   
+
+.blog-post h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.blog-post h5 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.blog-post h6 {
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
 
 /*
 Go Blog CSS

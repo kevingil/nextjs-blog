@@ -163,7 +163,7 @@ export default function Page() {
           </p>
         </div>
       </div>
-      <div className="prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: marked(content?.content || '') }} />
+      <div className="blog-post prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: marked(content?.content || '') }} />
       <div className="flex flex-wrap gap-2 mb-8">
         {articleData?.tags?.map((tag) => (
           <Badge key={tag.tagId} variant="secondary" className='text-primary'>{tag.tagName}</Badge>
