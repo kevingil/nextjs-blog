@@ -44,7 +44,20 @@ export async function createArticle({
 
     try {
       const postedArticle = await db.insert(articles).values(newArticle).returning();
+  
+      // Add tags
+      for (const tagName of newTags) {
+        let tag = await db.select().from(tags).where(eq(tags.name, tagName)).limit(1);
+        if (tag.length === 0) {
+          const [newTag] = await db.insert(tags).values({ name: tagName }).returning();
+          tag = [newTag];
+        }
+        await db.insert(articleTags).values({ articleId: postedArticle[0].id, tagId: tag[0].id });
+      }
+
       return postedArticle[0] as Article;
+
+
     } catch (error) {
       console.error('Error creating article', error);
       throw new Error('Failed to create article');
@@ -87,16 +100,28 @@ export async function updateArticle({
   tags: string[];
   isDraft: boolean;
 }) {
+
+  // Get the article
   const article = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
-  
   if (article.length === 0) {
     throw new Error('Article not found');
   }
-
   const articleId = article[0].id;
+
+
+  // If slug is changed, check if it already exists, if so, add random number to make it unique
+  const existingSlug = article[0].slug;
+  let newSlug = title.toLowerCase().replace(/\s+/g, '-');
+  if (newSlug !== existingSlug) {
+    const existingArticle = await db.select().from(articles).where(eq(articles.slug, newSlug)).limit(1);
+    if (existingArticle.length > 0) {
+      newSlug = newSlug + '-' + uuidv4().substring(0, 4);
+    }
+  }
 
   // Update article
   await db.update(articles).set({ 
+    slug: newSlug,
     title: title, 
     content: content, 
     image: image, 

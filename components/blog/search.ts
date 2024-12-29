@@ -47,7 +47,8 @@ export async function getArticles(page: number, tag: string | null = null): Prom
     .where(and(...conditions))
     .groupBy(articles.id)
     .limit(ITEMS_PER_PAGE)
-    .offset(offset);
+    .offset(offset)
+    .orderBy(desc(articles.createdAt));
 
   // For pagination
   const totalArticlesResult = await db
