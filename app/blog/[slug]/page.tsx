@@ -11,12 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ArticleData, getArticleData, getRecommendedArticles, RecommendedArticle } from '@/app/dashboard/blog/actions';
 import { useSearchParams } from 'next/navigation';
 
-interface PostPageProps {
-  params: {
-    slug: string;
-  };
-}
-
 
 function ArticleSkeleton() {
   return (
@@ -68,41 +62,6 @@ export default function Page() {
   const searchParams = useSearchParams();
   const previewDraft = searchParams.get('previewDraft');
 
-  useEffect(() => {
-    const loadData = async () => {
-      const data = await getArticleData(slug as string);
-      setArticleData(data);
-      if (!data) {
-        notFound();
-      }
-      if (data.article.isDraft && !previewDraft) {
-        notFound();
-      }
-    };
-    loadData();
-  }, [slug]);
-
-  return (
-    <div className="container mx-auto py-8">
-      <Suspense fallback={<ArticleSkeleton />}>
-        <ArticleContent slug={slug as string} articleData={articleData} />
-      </Suspense>
-
-      <Separator className="my-12" />
-
-      <section className="max-w-4xl mx-auto">
-        <h2 className="text-2xl font-bold mb-6">Other Articles</h2>
-        <Suspense fallback={<RecommendedArticlesSkeleton />}>
-          <RecommendedArticles slug={slug as string} articleData={articleData} />
-        </Suspense>
-      </section>
-    </div>
-  );
-}
-
- function ArticleContent({ slug, articleData }: { slug: string, articleData: ArticleData | null }) {
-  const content = articleData?.article;
-  
 
   // State to control the animation
   const articleRef = useRef<HTMLDivElement | null>(null);
@@ -137,10 +96,43 @@ export default function Page() {
     };
   }, []);
 
-
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await getArticleData(slug as string);
+      setArticleData(data);
+      if (!data) {
+        notFound();
+      }
+      if (data.article.isDraft && !previewDraft) {
+        notFound();
+      }
+    };
+    loadData();
+  }, [slug]);
 
   return (
-    <article className="max-w-4xl mx-auto" ref={articleRef}>
+    <div className={`container mx-auto py-8 delay-1000 ${animate ? 'animate' : 'hide-down'}`} ref={articleRef}>
+      <Suspense fallback={<ArticleSkeleton />}>
+        <ArticleContent slug={slug as string} articleData={articleData} />
+      </Suspense>
+
+      <Separator className="my-12" />
+
+      <section className="max-w-4xl mx-auto">
+        <h2 className="text-2xl font-bold mb-6">Other Articles</h2>
+        <Suspense fallback={<RecommendedArticlesSkeleton />}>
+          <RecommendedArticles slug={slug as string} articleData={articleData} />
+        </Suspense>
+      </section>
+    </div>
+  );
+}
+
+ function ArticleContent({ slug, articleData }: { slug: string, articleData: ArticleData | null }) {
+  const content = articleData?.article;
+
+  return (
+    <article className="max-w-4xl mx-auto">
       <h1 className="text-4xl font-bold mb-4">{content?.title}</h1>
       {content?.image && (
         <img
@@ -155,7 +147,7 @@ export default function Page() {
         <div>
           <p className="font-semibold">{articleData?.author_name}</p>
           <p className="text-sm text-muted-foreground">
-            {format(new Date(content?.createdAt || ''), 'MMMM d, yyyy')}
+            { content?.createdAt ? format(new Date(content?.createdAt), 'MMMM d, yyyy') : 'Unknown'}
           </p>
         </div>
       </div>
@@ -207,7 +199,7 @@ function RecommendedArticles({ slug, articleData }: { slug: string, articleData:
           <CardContent className="p-4">
             <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {format(new Date(article.createdAt), 'MMMM d, yyyy')}
+              {article.createdAt ? format(new Date(article.createdAt), 'MMMM d, yyyy') : 'Unknown'}
             </p>
           </CardContent>
         </Card>
