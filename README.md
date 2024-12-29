@@ -38,8 +38,14 @@ Then, run the database migrations and seed the database with a default user:
 turso dev --db-file local.db
 
 # Setup and seed database
+
 pnpm db:migrate
 pnpm db:seed
+
+#Making schema changes
+pnpm db:generate
+pnpm db:migrate
+
 ```
 
 This will create the following user and team:

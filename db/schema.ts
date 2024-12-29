@@ -77,6 +77,7 @@ export const articles = sqliteTable('articles', {
   content: text('content').notNull(),
   author: integer('author').notNull().references(() => users.id),
   createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+  updatedAt: integer('updated_at').notNull().default(sql`(unixepoch())`),
   isDraft: integer('is_draft', { mode: 'boolean' }).notNull().default(false),
   embedding: float32Array('embedding', { dimensions: 1536 }),
 });

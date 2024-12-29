@@ -1,14 +1,15 @@
-import { Suspense } from 'react';
-import { eq, not, and } from 'drizzle-orm';
-import { notFound } from 'next/navigation';
+'use client'
+
+import { Suspense, useEffect, useRef, useState } from 'react';
+import { notFound, useParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { marked } from 'marked';
-import { db } from '@/db/drizzle';
-import { Article, articles, users, articleTags, tags } from '@/db/schema';
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ArticleData, getArticleData, getRecommendedArticles, RecommendedArticle } from '@/app/dashboard/blog/actions';
+import { useSearchParams } from 'next/navigation';
 
 interface PostPageProps {
   params: {
@@ -16,85 +17,6 @@ interface PostPageProps {
   };
 }
 
-
-type TagData = { 
-  articleId: number,
-  tagId: number,
-  tagName: string | null,
-}
-
-type ArticleData = {
-  article: Article,
-  tags: TagData[] | null,
-  author_name: string,
-}
-
-type RecommendedArticle = {
-  id: number,
-  title: string,
-  slug: string,
-  image: string | null,
-  createdAt: number,
-  author: string | null,
-}
-
-export async function generateMetadata({ params }: PostPageProps) {
-  const { slug } = await params;
-  const article = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
-
-  if (article.length === 0) {
-    return { title: 'Article Not Found' };
-  }
-
-  return {
-    title: article[0].title,
-    description: article[0].content.substring(0, 160),
-  };
-}
-
-async function getArticleData(slug: string): Promise<ArticleData | null> {
-  const results = await db.select().
-    from(articles)
-    .where(eq(articles.slug, slug));
-
-  if (results.length === 0) { notFound(); }
-
-  const content: Article = results[0];
-
-  const tagData = await db
-    .select({ articleId: articleTags.articleId, tagId: articleTags.tagId, tagName: tags.name })
-    .from(articleTags)
-    .innerJoin(tags, eq(articleTags.tagId, tags.id))
-    .where(eq(articleTags.articleId, content.id));
-
-  const author = await db
-    .select({ name: users.name })
-    .from(users)
-    .where(eq(users.id, content.author));
-
-  return {
-    article: content,
-    tags: tagData,
-    author_name: author[0].name,
-  }
-}
-
-async function getRecommendedArticles(currentArticleId: number): Promise<RecommendedArticle[] | null> {
-  return await db
-    .select({
-      id: articles.id,
-      title: articles.title,
-      slug: articles.slug,
-      image: articles.image,
-      createdAt: articles.createdAt,
-      author: users.name,
-      isDraft: articles.isDraft
-    })
-    .from(articles)
-    .leftJoin(users, eq(articles.author, users.id))
-    .where(and(not(eq(articles.id, currentArticleId)), not(articles.isDraft)))
-    .limit(3);
-}
 
 function ArticleSkeleton() {
   return (
@@ -139,13 +61,31 @@ function RecommendedArticlesSkeleton() {
   );
 }
 
-export default async function Page({ params }: PostPageProps) {
-  const { slug } = await params;
+export default function Page() {
+  const { slug } = useParams();
+  const [articleData, setArticleData] = useState<ArticleData | null>(null);
+  const content = articleData?.article;
+  const searchParams = useSearchParams();
+  const previewDraft = searchParams.get('previewDraft');
+
+  useEffect(() => {
+    const loadData = async () => {
+      const data = await getArticleData(slug as string);
+      setArticleData(data);
+      if (!data) {
+        notFound();
+      }
+      if (data.article.isDraft && !previewDraft) {
+        notFound();
+      }
+    };
+    loadData();
+  }, [slug]);
 
   return (
     <div className="container mx-auto py-8">
       <Suspense fallback={<ArticleSkeleton />}>
-        <ArticleContent slug={slug} />
+        <ArticleContent slug={slug as string} articleData={articleData} />
       </Suspense>
 
       <Separator className="my-12" />
@@ -153,24 +93,56 @@ export default async function Page({ params }: PostPageProps) {
       <section className="max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold mb-6">Other Articles</h2>
         <Suspense fallback={<RecommendedArticlesSkeleton />}>
-          <RecommendedArticles slug={slug} />
+          <RecommendedArticles slug={slug as string} articleData={articleData} />
         </Suspense>
       </section>
     </div>
   );
 }
 
-async function ArticleContent({ slug }: { slug: string }) {
-  const articleData = await getArticleData(slug);
+ function ArticleContent({ slug, articleData }: { slug: string, articleData: ArticleData | null }) {
   const content = articleData?.article;
-  if (!content) {
-    notFound();
-  }
+  
+
+  // State to control the animation
+  const articleRef = useRef<HTMLDivElement | null>(null);
+  const [animate, setAnimate] = useState(false);
+
+  // Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        console.log("entry.isIntersecting", entry.isIntersecting);
+        if (entry.isIntersecting) {
+          setAnimate(true);
+          observer.unobserve(entry.target); 
+        }
+      },
+      {
+        threshold: 0.1, 
+      }
+    );
+
+    if (articleRef.current) {
+      console.log("articleRef.current", articleRef.current);
+      observer.observe(articleRef.current);
+    }
+
+    return () => {
+      // Clean up on unmount
+      if (observer && articleRef.current) {
+        console.log("observer.unobserve(articleRef.current)");
+        observer.unobserve(articleRef.current);
+      }
+    };
+  }, []);
+
+
 
   return (
-    <article className="max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold mb-4">{content.title}</h1>
-      {content.image && (
+    <article className="max-w-4xl mx-auto" ref={articleRef}>
+      <h1 className="text-4xl font-bold mb-4">{content?.title}</h1>
+      {content?.image && (
         <img
           src={content.image}
           alt={content.title}
@@ -181,15 +153,15 @@ async function ArticleContent({ slug }: { slug: string }) {
       )}
       <div className="flex items-center mb-6">
         <div>
-          <p className="font-semibold">{articleData.author_name}</p>
+          <p className="font-semibold">{articleData?.author_name}</p>
           <p className="text-sm text-muted-foreground">
-            {format(new Date(content.createdAt), 'MMMM d, yyyy')}
+            {format(new Date(content?.createdAt || ''), 'MMMM d, yyyy')}
           </p>
         </div>
       </div>
-      <div className="prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: marked(content.content) }} />
+      <div className="prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: marked(content?.content || '') }} />
       <div className="flex flex-wrap gap-2 mb-8">
-        {articleData.tags?.map((tag) => (
+        {articleData?.tags?.map((tag) => (
           <Badge key={tag.tagId} variant="secondary" className='text-primary'>{tag.tagName}</Badge>
         ))}
       </div>
@@ -197,12 +169,26 @@ async function ArticleContent({ slug }: { slug: string }) {
   );
 }
 
-async function RecommendedArticles({ slug }: { slug: string }) {
-  const content = await getArticleData(slug);
-  if (!content) {
-    return null;
-  }
-  const recommendedArticles = await getRecommendedArticles(content.article.id);
+function RecommendedArticles({ slug, articleData }: { slug: string, articleData: ArticleData | null }) {
+  
+  const [recommendedArticles, setRecommendedArticles] = useState<RecommendedArticle[] | null>(null);
+  const content = articleData?.article;
+  
+  console.log("RecommendedArticles", recommendedArticles);
+  console.log("content", content);
+
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!content) {
+        return;
+      }
+      const data = await getRecommendedArticles(content?.id);
+      setRecommendedArticles(data);
+    };
+    loadData();
+  }, [slug, content]);
+  
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -60,7 +60,9 @@ async function seed() {
       `.trim(),
       author: adminUser.id,
       isDraft: false,
-      embedding: Array(1536).fill(0), // Example embedding of zeros
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
+      embedding: Array(1536).fill(0),
     },
     {
       image: 'https://pub-77540a26e0ed46cb9cd842883ee82a7f.r2.dev/806be441-planetscale.png',
@@ -80,6 +82,8 @@ async function seed() {
       `.trim(),
       author: adminUser.id,
       isDraft: false,
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
       embedding: Array(1536).fill(0),
     },
     {
@@ -100,6 +104,8 @@ async function seed() {
       `.trim(),
       author: adminUser.id,
       isDraft: true,
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
       embedding: Array(1536).fill(0),
     }
   ];

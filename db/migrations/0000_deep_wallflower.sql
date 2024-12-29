@@ -23,6 +23,7 @@ CREATE TABLE `articles` (
 	`content` text NOT NULL,
 	`author` integer NOT NULL,
 	`created_at` integer DEFAULT (unixepoch()) NOT NULL,
+	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`is_draft` integer DEFAULT false NOT NULL,
 	`embedding` F32_BLOB(1536),
 	FOREIGN KEY (`author`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action

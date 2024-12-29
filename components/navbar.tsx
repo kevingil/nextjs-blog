@@ -164,7 +164,7 @@ export const Navbar = () => {
                 </Avatar>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="flex flex-col gap-1">
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setIsMenuOpen(false)}>
                   <Link href="/dashboard" className="flex w-full items-center">
                     <Home className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
@@ -172,7 +172,8 @@ export const Navbar = () => {
                 </DropdownMenuItem>
                 <form action={handleSignOut} className="w-full">
                   <button type="submit" className="flex w-full">
-                    <DropdownMenuItem className="w-full flex-1 cursor-pointer">
+                    <DropdownMenuItem className="w-full flex-1 cursor-pointer"
+                    onClick={() => setIsMenuOpen(false)}>
                       <LogOut className="mr-2 h-4 w-4" />
                       <span>Sign out</span>
                     </DropdownMenuItem>

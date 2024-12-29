@@ -38,6 +38,8 @@ export async function createArticle({
       isDraft: isDraft,
       embedding: null,
       author: authorId,
+      createdAt: new Date().getTime(),
+      updatedAt: new Date().getTime(),
     }
 
     try {
@@ -94,7 +96,13 @@ export async function updateArticle({
   const articleId = article[0].id;
 
   // Update article
-  await db.update(articles).set({ title: title, content: content, image: image, isDraft: isDraft }).where(eq(articles.id, articleId));
+  await db.update(articles).set({ 
+    title: title, 
+    content: content, 
+    image: image, 
+    isDraft: isDraft,
+    updatedAt: new Date().getTime()
+  }).where(eq(articles.id, articleId));
 
   // Delete existing tags
   await db.delete(articleTags).where(eq(articleTags.articleId, articleId));

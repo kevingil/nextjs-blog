@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5c3b7207-0322-465c-b1a5-65aceea67def",
+  "id": "26cfd282-2b40-4946-9616-a06df5630157",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "about_page": {
@@ -163,6 +163,14 @@
         },
         "created_at": {
           "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(unixepoch())"
+        },
+        "updated_at": {
+          "name": "updated_at",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
