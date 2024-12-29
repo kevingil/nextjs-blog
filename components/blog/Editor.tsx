@@ -107,7 +107,7 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
     resolver: zodResolver(articleSchema),
   });
 
-  const [imagePrompt, setImagePrompt] = useState<string | null>(DEFAULT_IMAGE_PROMPT);
+  const [imagePrompt, setImagePrompt] = useState<string | null>(DEFAULT_IMAGE_PROMPT[Math.floor(Math.random() * DEFAULT_IMAGE_PROMPT.length)]);
 
   // Consume from ImageLoader
   useEffect(() => {

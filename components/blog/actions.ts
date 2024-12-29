@@ -22,7 +22,12 @@ export async function createArticle({
     authorId: number;
   }) {
 
-    let slug = title.toLowerCase().replace(/\s+/g, '-');
+    let slug = title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, ''); 
 
     const existingArticle = await db.select().from(articles).where(eq(articles.slug, slug)).limit(1);
 
@@ -111,7 +116,12 @@ export async function updateArticle({
 
   // If slug is changed, check if it already exists, if so, add random number to make it unique
   const existingSlug = article[0].slug;
-  let newSlug = title.toLowerCase().replace(/\s+/g, '-');
+  let newSlug = title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
   if (newSlug !== existingSlug) {
     const existingArticle = await db.select().from(articles).where(eq(articles.slug, newSlug)).limit(1);
     if (existingArticle.length > 0) {

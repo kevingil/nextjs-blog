@@ -119,6 +119,8 @@ export async function getArticles(): Promise<ArticleRow[]> {
 }
 
 export async function deleteArticle(id: number) {
-  await db.delete(articles).where(eq(articles.id, id))
-  return { success: true }
+  // first delete the references in articleTags
+  await db.delete(articleTags).where(eq(articleTags.articleId, id));
+  await db.delete(articles).where(eq(articles.id, id));
+  return { success: true };
 }
