@@ -80,6 +80,7 @@ export const articles = sqliteTable('articles', {
   updatedAt: integer('updated_at').notNull().default(sql`(unixepoch())`),
   isDraft: integer('is_draft', { mode: 'boolean' }).notNull().default(false),
   embedding: float32Array('embedding', { dimensions: 1536 }),
+  imageGenerationId: integer('image_generation_id').references(() => imageGeneration.id),
 });
 
 // Tags table
@@ -95,6 +96,19 @@ export const articleTags = sqliteTable('article_tags', {
 }, (table) => ({
   pk: unique().on(table.articleId, table.tagId),
 }));
+
+
+// Image generation table
+export const imageGeneration = sqliteTable('image_generation', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  prompt: text('prompt'),
+  provider: text('provider'),
+  model: text('model'),
+  requestId: text('request_id'),
+  outputUrl: text('output_url'),
+  storageKey: text('storage_key'),
+  createdAt: integer('created_at').notNull().default(sql`(unixepoch())`),
+});
 
 
 // Function to create vector index (to be used after table creation)
@@ -143,3 +157,6 @@ export type NewTag = typeof tags.$inferInsert;
 
 export type ArticleTag = typeof articleTags.$inferSelect;
 export type NewArticleTag = typeof articleTags.$inferInsert;
+
+export type ImageGeneration = typeof imageGeneration.$inferSelect;
+export type NewImageGeneration = typeof imageGeneration.$inferInsert;

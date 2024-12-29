@@ -10,12 +10,17 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import { updateArticle, getArticle, createArticle } from './actions';
 import Link from 'next/link';
 import { Article } from '@/db/schema';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeftIcon, ExternalLinkIcon } from '@radix-ui/react-icons';
+import { ExternalLinkIcon, UploadIcon } from '@radix-ui/react-icons';
+import { SparklesIcon } from 'lucide-react';
+import { Dialog, DialogTitle, DialogContent, DialogTrigger, DialogDescription, DialogFooter, DialogHeader, DialogClose } from '@/components/ui/dialog';
+import { DEFAULT_IMAGE_PROMPT } from '@/lib/images/const';
+import { generateArticleImage } from '@/lib/images/generation';
+import { ToastAction } from "@/components/ui/toast"
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -27,16 +32,50 @@ const articleSchema = z.object({
 
 type ArticleFormData = z.infer<typeof articleSchema>;
 
+
+export function ImageLoader({ article, stagedImageUrl }: { article: Article | null | undefined, stagedImageUrl: string | null | undefined }) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (stagedImageUrl !== undefined) {
+      setImageUrl(stagedImageUrl);
+    } else if (article && article.image) {
+      setImageUrl(article.image);
+    }
+  }, [article, stagedImageUrl]);
+
+  if (!article) {
+    return null;
+  }
+
+  if (imageUrl) {
+    return (
+      <div className='flex items-center justify-center'>
+        <img className='rounded-md aspect-video object-cover' src={imageUrl} alt={article.title} width={'100%'} />
+      </div>
+    )
+  }
+
+  return null;
+
+}
+
+
 export default function ArticleEditor({ params }: { params: { slug: string } }) {
+  const { toast } = useToast()
   const router = useRouter();
   const { user } = useUser();
   const isNew = params.slug === 'new';
   const [isLoading, setIsLoading] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
+  const [stagedImageUrl, setStagedImageUrl] = useState<string | null | undefined>(undefined);
+  const [generateImageOpen, setGenerateImageOpen] = useState(false);
 
   const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm<ArticleFormData>({
     resolver: zodResolver(articleSchema),
   });
+
+  const [imagePrompt, setImagePrompt] = useState<string | null>(DEFAULT_IMAGE_PROMPT);
 
   useEffect(() => {
     async function fetchArticle() {
@@ -130,10 +169,61 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
               />
               {errors.title && <p className="text-red-500">{errors.title.message}</p>}
             </div>
-            <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Image URL</label>
+            <ImageLoader article={article} stagedImageUrl={stagedImageUrl} />
+            <div className='flex items-center justify-between'>
+              <label className="block text-md font-medium leading-6 text-gray-900 dark:text-white">Image</label>
+              <div className='flex items-center gap-2'>
+                <Button variant="outline" size="icon" disabled>
+                  <UploadIcon className="w-4 h-4" />
+                </Button>
+                <Dialog open={generateImageOpen} onOpenChange={setGenerateImageOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <SparklesIcon className="w-4 h-4 text-indigo-500" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[600px]">
+                    <DialogHeader>
+                      <DialogTitle>Generate New Image</DialogTitle>
+                      <DialogDescription>
+                          Generate a new image for your article header.
+                      </DialogDescription>
+                    </DialogHeader>
+                      <div className="flex flex-col items-start gap-4 w-full">
+                          <Textarea
+                            value={imagePrompt || ''}
+                            onChange={(e) => setImagePrompt(e.target.value)}
+                            placeholder="Prompt"
+                            className='h-[300px] w-full'
+                          />
+                      </div>
+                    <DialogFooter> 
+                      <div className="flex items-center gap-2 w-full">
+                        <DialogClose asChild>
+                          <Button variant="outline" className="w-full">Cancel</Button>
+                        </DialogClose>
+                        <Button type="submit" className="w-full"
+                        onClick={async () => {
+                          console.log("image prompt", imagePrompt);
+                          const result = await generateArticleImage(imagePrompt || "", article?.id);
+                          if (result.success) {
+                            toast({ title: "Success", description: "Image generated successfully." });
+                            setGenerateImageOpen(false);
+                          } else {
+                            toast({ title: "Error", description: "Failed to generate image. Please try again." });
+                          }
+                        }}>Generate</Button>
+                      </div>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+
+              </div>
+            </div>
             <div>
               <Input
                 {...register('image')}
+                onChange={(e) => setStagedImageUrl(e.target.value)}
                 placeholder="Optional, for header"
               />
               {errors.image && <p className="text-red-500">{errors.image.message}</p>}
@@ -144,6 +234,7 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
                 {...register('content')}
                 placeholder="Article Content"
                 rows={10}
+                className='h-[400px]'
               />
               {errors.content && <p className="text-red-500">{errors.content.message}</p>}
             </div>
