@@ -2,7 +2,7 @@
 
 import { eq } from 'drizzle-orm';
 import { db } from '@/db/drizzle';
-import { Article, articles, articleTags, NewArticle, tags } from '@/db/schema';
+import { Article, articles, articleTags, imageGeneration, ImageGeneration, NewArticle, tags } from '@/db/schema';
 import { v4 as uuidv4 } from 'uuid';
 
 

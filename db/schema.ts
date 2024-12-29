@@ -80,7 +80,7 @@ export const articles = sqliteTable('articles', {
   updatedAt: integer('updated_at').notNull().default(sql`(unixepoch())`),
   isDraft: integer('is_draft', { mode: 'boolean' }).notNull().default(false),
   embedding: float32Array('embedding', { dimensions: 1536 }),
-  imageGenerationId: integer('image_generation_id').references(() => imageGeneration.id),
+  imageGenerationRequestId: text('image_generation_request_id'),
 });
 
 // Tags table

@@ -74,8 +74,13 @@ export async function uploadFile(key: string, file: File) {
         Key: key,
         Body: body
     });
-
-    await s3Client.send(command);
+    try {
+        const response = await s3Client.send(command);
+        console.log("uploadFile response", response);
+        return response;
+    } catch (error) {
+        throw error as Error;
+    }
 }
 
 export async function deleteFile(key: string) {

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/auth';
 import { useForm } from 'react-hook-form';
@@ -10,17 +10,16 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { toast, useToast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { updateArticle, getArticle, createArticle } from './actions';
 import Link from 'next/link';
-import { Article } from '@/db/schema';
+import { Article, ImageGeneration } from '@/db/schema';
 import { Switch } from '@/components/ui/switch';
 import { ExternalLinkIcon, UploadIcon } from '@radix-ui/react-icons';
 import { SparklesIcon } from 'lucide-react';
 import { Dialog, DialogTitle, DialogContent, DialogTrigger, DialogDescription, DialogFooter, DialogHeader, DialogClose } from '@/components/ui/dialog';
 import { DEFAULT_IMAGE_PROMPT } from '@/lib/images/const';
-import { generateArticleImage } from '@/lib/images/generation';
-import { ToastAction } from "@/components/ui/toast"
+import { generateArticleImage, getImageGeneration, getImageGenerationStatus } from '@/lib/images/generation';
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -33,16 +32,48 @@ const articleSchema = z.object({
 type ArticleFormData = z.infer<typeof articleSchema>;
 
 
-export function ImageLoader({ article, stagedImageUrl }: { article: Article | null | undefined, stagedImageUrl: string | null | undefined }) {
+export function ImageLoader({ article, newImageGenerationRequestId, stagedImageUrl, setStagedImageUrl }: {
+  article: Article | null | undefined,
+  newImageGenerationRequestId: string | null | undefined,
+  stagedImageUrl: string | null | undefined,
+  setStagedImageUrl: (url: string | null | undefined) => void
+}) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
+
   useEffect(() => {
+    const requestToFetch = newImageGenerationRequestId || article?.imageGenerationRequestId || null;
+    console.log("imgen requestToFetch", requestToFetch);
+    async function fetchImageGeneration() {
+      console.log("imgen requestToFetch", requestToFetch);
+      if (requestToFetch) {
+        console.log("imgen requesting fetch", requestToFetch);
+        const imgGen = await getImageGeneration(requestToFetch);
+        console.log("imgen imgGen", imgGen);
+        if (imgGen) {
+          if (imgGen.outputUrl) {
+            setImageUrl(imgGen.outputUrl);
+          } else {
+            // TODO check Fal subscription status
+            const status = await getImageGenerationStatus(requestToFetch);
+            if (status.outputUrl) {
+              setImageUrl(status.outputUrl);
+              setStagedImageUrl(status.outputUrl);
+            }
+          }
+        }
+      }
+    }
+    fetchImageGeneration();
+
     if (stagedImageUrl !== undefined) {
+      console.log("imgen stagedImageUrl", stagedImageUrl);
       setImageUrl(stagedImageUrl);
     } else if (article && article.image) {
+      console.log("imgen article", article);
       setImageUrl(article.image);
     }
-  }, [article, stagedImageUrl]);
+  }, [article, stagedImageUrl, newImageGenerationRequestId]);
 
   if (!article) {
     return null;
@@ -68,6 +99,7 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
   const isNew = params.slug === 'new';
   const [isLoading, setIsLoading] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
+  const [newImageGenerationRequestId, setNewImageGenerationRequestId] = useState<string | null>(null);
   const [stagedImageUrl, setStagedImageUrl] = useState<string | null | undefined>(undefined);
   const [generateImageOpen, setGenerateImageOpen] = useState(false);
 
@@ -76,6 +108,13 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
   });
 
   const [imagePrompt, setImagePrompt] = useState<string | null>(DEFAULT_IMAGE_PROMPT);
+
+  // Consume from ImageLoader
+  useEffect(() => {
+    if (stagedImageUrl) {
+      setValue('image', stagedImageUrl);
+    }
+  }, [stagedImageUrl, setValue]);
 
   useEffect(() => {
     async function fetchArticle() {
@@ -159,9 +198,9 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
             <div>
               <div className='flex items-center justify-between gap-2 my-4'>
                 <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Title</label>
-                  <Link href={`/blog/${params.slug}${article?.isDraft ? '?previewDraft=true' : ''}`} target="_blank" className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
-                    See Article <ExternalLinkIcon className="w-4 h-4" />
-                  </Link>
+                <Link href={`/blog/${params.slug}${article?.isDraft ? '?previewDraft=true' : ''}`} target="_blank" className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
+                  See Article <ExternalLinkIcon className="w-4 h-4" />
+                </Link>
               </div>
               <Input
                 {...register('title')}
@@ -169,7 +208,12 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
               />
               {errors.title && <p className="text-red-500">{errors.title.message}</p>}
             </div>
-            <ImageLoader article={article} stagedImageUrl={stagedImageUrl} />
+            <ImageLoader
+              article={article}
+              newImageGenerationRequestId={newImageGenerationRequestId}
+              stagedImageUrl={stagedImageUrl}
+              setStagedImageUrl={setStagedImageUrl}
+            />
             <div className='flex items-center justify-between'>
               <label className="block text-md font-medium leading-6 text-gray-900 dark:text-white">Image</label>
               <div className='flex items-center gap-2'>
@@ -186,33 +230,35 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
                     <DialogHeader>
                       <DialogTitle>Generate New Image</DialogTitle>
                       <DialogDescription>
-                          Generate a new image for your article header.
+                        Generate a new image for your article header.
                       </DialogDescription>
                     </DialogHeader>
-                      <div className="flex flex-col items-start gap-4 w-full">
-                          <Textarea
-                            value={imagePrompt || ''}
-                            onChange={(e) => setImagePrompt(e.target.value)}
-                            placeholder="Prompt"
-                            className='h-[300px] w-full'
-                          />
-                      </div>
-                    <DialogFooter> 
+                    <div className="flex flex-col items-start gap-4 w-full">
+                      <Textarea
+                        value={imagePrompt || ''}
+                        onChange={(e) => setImagePrompt(e.target.value)}
+                        placeholder="Prompt"
+                        className='h-[300px] w-full'
+                      />
+                    </div>
+                    <DialogFooter>
                       <div className="flex items-center gap-2 w-full">
                         <DialogClose asChild>
                           <Button variant="outline" className="w-full">Cancel</Button>
                         </DialogClose>
                         <Button type="submit" className="w-full"
-                        onClick={async () => {
-                          console.log("image prompt", imagePrompt);
-                          const result = await generateArticleImage(imagePrompt || "", article?.id);
-                          if (result.success) {
-                            toast({ title: "Success", description: "Image generated successfully." });
-                            setGenerateImageOpen(false);
-                          } else {
-                            toast({ title: "Error", description: "Failed to generate image. Please try again." });
-                          }
-                        }}>Generate</Button>
+                          onClick={async () => {
+                            console.log("image prompt", imagePrompt);
+                            const result = await generateArticleImage(imagePrompt || "", article?.id);
+
+                            if (result.success) {
+                              setNewImageGenerationRequestId(result.generationRequestId);
+                              toast({ title: "Success", description: "Image generated successfully." });
+                              setGenerateImageOpen(false);
+                            } else {
+                              toast({ title: "Error", description: "Failed to generate image. Please try again." });
+                            }
+                          }}>Generate</Button>
                       </div>
                     </DialogFooter>
                   </DialogContent>
@@ -250,16 +296,16 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
               <label htmlFor="isDraft">Published </label>
               <Switch {...register('isDraft')} checked={!article?.isDraft} onCheckedChange={(checked) => {
                 if (article) {
-                  setArticle({...article, isDraft: !checked});
+                  setArticle({ ...article, isDraft: !checked });
                 }
                 setValue('isDraft', !checked);
-              }} /> 
+              }} />
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="secondary">
               <Link href="/dashboard/blog">
-              Cancel
+                Cancel
               </Link>
             </Button>
             <Button type='submit' disabled={isLoading}>
