@@ -89,8 +89,9 @@ export const signUp = validatedAction(signUpSchema, async (data, formData) => {
 });
 
 export async function signOut() {
-  cookies().delete('session');
-  redirect('/sign-in');
+  const cookieStore = await cookies();
+  cookieStore.delete('session');
+  redirect('/login');
 }
 
 const updatePasswordSchema = z
@@ -144,8 +145,9 @@ export const deleteAccount = validatedActionWithUser(
     }
 
     await db.delete(users).where(eq(users.id, user.id));
-    cookies().delete('session');
-    redirect('/sign-in');
+    const cookieStore = await cookies();
+    cookieStore.delete('session');
+    redirect('/login');
   }
 );
 

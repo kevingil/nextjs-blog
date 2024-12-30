@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import { startTransition, useActionState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/lib/auth';
 import { updateAccount } from '@/actions/auth';
+import { getUser } from '@/db/queries';
+import { redirect } from 'next/navigation';
 
 type ActionState = {
   error?: string;
@@ -16,6 +18,10 @@ type ActionState = {
 
 export default function GeneralPage() {
   const { user } = useUser();
+  if (!user) {
+    redirect('/login');
+  }
+
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(
     updateAccount,
     { error: '', success: '' }

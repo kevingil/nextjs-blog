@@ -1,12 +1,15 @@
-'use client';
+'use client'
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Lock, Trash2, Loader2 } from 'lucide-react';
-import { startTransition, useActionState } from 'react';
+import { startTransition, useActionState, useEffect } from 'react';
 import { updatePassword, deleteAccount } from '@/actions/auth';
+import { getUser } from '@/db/queries';
+import { redirect } from 'next/navigation';
+import { useUser } from '@/lib/auth';
 
 type ActionState = {
   error?: string;
@@ -14,6 +17,11 @@ type ActionState = {
 };
 
 export default function SecurityPage() {
+  const { user } = useUser();
+  if (!user) {
+    redirect('/login');
+  }
+
   const [passwordState, passwordAction, isPasswordPending] = useActionState<
     ActionState,
     FormData

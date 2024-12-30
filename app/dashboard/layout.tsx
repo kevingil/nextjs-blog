@@ -27,6 +27,7 @@ export default function DashboardLayout({
     { href: '/dashboard/general', icon: Settings, label: 'General' },
     { href: '/dashboard/security', icon: Shield, label: 'Security' },
   ];
+  
 
   const NavContent = ({ mobile = false }) => (
     <nav className={mobile ? '' : ' flex flex-col gap-1'}>

@@ -11,7 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useEffect, useState } from 'react';
 import { getArticles, deleteArticle, ArticleRow } from './actions';
 import { generateArticle } from '@/lib/llm/articles';
-import { useRouter } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { Article } from '@/db/schema';
 import Link from 'next/link';
 import {
@@ -28,6 +28,10 @@ import {
 
 export default function ArticlesPage() {
   const { user } = useUser();
+  if (!user) {
+    redirect('/login');
+  }
+
   const router = useRouter();
   const [articles, setArticles] = useState<ArticleRow[] | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
