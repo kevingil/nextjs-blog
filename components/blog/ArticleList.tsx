@@ -212,6 +212,13 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
     };
   }, []);
 
+  const markdownToPlainText = (markdown: string) => {
+    return markdown
+      .replace(/\*\*/g, '')     
+      .replace(/#*/g, '')  
+      .replace(/\n/g, ' '); 
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:py-8 w-full"
      style={{
@@ -284,7 +291,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
                       <span className="text-sm text-muted-foreground">{article.author}</span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {article.content?.substring(0, 160)}
+                      {markdownToPlainText(article.content?.substring(0, 160) || '' )}
                     </p>
                     <p className="text-sm text-muted-foreground mb-4">
                       {format(new Date(article.createdAt), 'MMMM d, yyyy')}
