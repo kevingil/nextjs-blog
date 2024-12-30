@@ -1,7 +1,7 @@
 'use server'
 import { db } from '@/db/drizzle'
 import { Article, articles, articleTags, tags, users } from '@/db/schema'
-import { eq, not, and, sql, desc } from 'drizzle-orm'
+import { eq, not, and, sql, desc, notInArray, inArray } from 'drizzle-orm'
 
 
 export type ArticleRow = {
@@ -119,9 +119,19 @@ export async function getArticles(): Promise<ArticleRow[]> {
   }))
 }
 
+
 export async function deleteArticle(id: number) {
-  // first delete the references in articleTags
+  // Delete article tag map
   await db.delete(articleTags).where(eq(articleTags.articleId, id));
+  // Delete article
   await db.delete(articles).where(eq(articles.id, id));
+  // Delete tags that no longer have article tag map references
+  await db.run(sql`
+    DELETE FROM ${tags}
+    WHERE NOT EXISTS (
+      SELECT 1 FROM ${articleTags}
+      WHERE ${articleTags.tagId} = ${tags.id}
+    )
+  `);
   return { success: true };
 }

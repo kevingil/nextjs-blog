@@ -167,12 +167,16 @@ export async function searchArticles(
 
 export async function getPopularTags(): Promise<{ tags: string[] }> {
   const popularTags = await db
-    .select({ tagName: tags.name })
+    .select({
+      tagName: tags.name,
+    })
     .from(articleTags)
     .innerJoin(tags, eq(articleTags.tagId, tags.id))
+    .innerJoin(articles, eq(articleTags.articleId, articles.id))
+    .where(eq(articles.isDraft, false))
     .groupBy(tags.name)
     .orderBy(desc(sql<number>`count(*)`))
     .limit(10);
+
   return { tags: popularTags.map((tag) => tag.tagName || '') };
 }
-
