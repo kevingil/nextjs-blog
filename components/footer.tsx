@@ -29,12 +29,6 @@ export const FooterSection = () => {
                   LinkedIn
                 </Link>
               </div>
-
-              <div>
-                <Link href="https://www.threads.net/@kvngil" target="_blank" className="opacity-60 hover:opacity-100">
-                  Threads
-                </Link>
-              </div>
             </div>
 
             <div className="flex flex-col gap-2">

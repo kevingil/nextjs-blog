@@ -54,6 +54,7 @@ export async function getAboutPage(): Promise<AboutPage | null> {
 export async function getContactPage(): Promise<ContactPage | null> {
   try {
     const result = await db.select().from(contactPage).limit(1);
+    console.log('Contact page fetched:', result);
     return result[0] || null;
   } catch (error) {
     console.error('Failed to fetch contact page:', error);
@@ -76,14 +77,21 @@ export async function updateAboutPage(data: Partial<AboutPage>): Promise<boolean
   }
 }
 
-export async function updateContactPage(data: Partial<ContactPage>): Promise<boolean> {
+export async function updateContactPage(data: ContactPage): Promise<boolean> {
   try {
+    console.log('Updating contact page:', data);
     await db.update(contactPage)
       .set({
-        ...data,
+        title: data.title || '',
+        content: data.content || '',
+        emailAddress: data.emailAddress || '',
+        socialLinks: data.socialLinks || '',
+        metaDescription: data.metaDescription || '',
         lastUpdated: new Date().toISOString(),
       })
-      .where(eq(contactPage.id, data.id!));
+      .where(eq(contactPage.id, data.id));
+    const updatedContactPage = await db.select().from(contactPage).where(eq(contactPage.id, data.id)).limit(1);
+    console.log('Contact page updated successfully', updatedContactPage);
     return true;
   } catch (error) {
     console.error('Failed to update contact page:', error);

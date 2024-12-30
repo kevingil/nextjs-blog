@@ -103,6 +103,7 @@ export default function ContactPage() {
 
                 <Card>
                   <CardContent className="p-6 space-y-6">
+                    {pageData.emailAddress && (
                     <div>
                       <h2 className="text-xl font-semibold mb-2">Email</h2>
                       <a
@@ -112,6 +113,7 @@ export default function ContactPage() {
                         {pageData.emailAddress}
                       </a>
                     </div>
+                    )}
 
                     {Object.keys(socialLinks).length > 0 && (
                       <div>

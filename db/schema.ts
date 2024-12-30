@@ -50,22 +50,22 @@ export const projects = sqliteTable('projects', {
 // About Page table
 export const aboutPage = sqliteTable('about_page', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  title: text('title').notNull(),
-  content: text('content').notNull(), 
+  title: text('title'),
+  content: text('content'), 
   profileImage: text('profile_image'),
   metaDescription: text('meta_description'), 
-  lastUpdated: text('last_updated').notNull(),
+  lastUpdated: text('last_updated'),
 });
 
 // Contact Page table
 export const contactPage = sqliteTable('contact_page', {
   id: integer('id').primaryKey({ autoIncrement: true }),
-  title: text('title').notNull(),
-  content: text('content').notNull(), 
-  emailAddress: text('email_address').notNull(), 
+  title: text('title'),
+  content: text('content'), 
+  emailAddress: text('email_address'), 
   socialLinks: text('social_links'), 
   metaDescription: text('meta_description'), 
-  lastUpdated: text('last_updated').notNull(),
+  lastUpdated: text('last_updated'),
 });
 
 // Articles table with vector embeddings

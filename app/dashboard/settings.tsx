@@ -13,21 +13,21 @@ import { Pencil, X } from 'lucide-react';
 
 interface AboutPage {
   id: number;
-  title: string;
+  title: string | null;
   content: string | null;
   profileImage?: string | null;
   metaDescription?: string | null;
-  lastUpdated: string;
+  lastUpdated: string | null;
 }
 
 interface ContactPage {
   id: number;
-  title: string;
+  title: string | null;
   content: string | null;
   emailAddress: string | null;
   socialLinks?: string | null;
   metaDescription?: string | null;
-  lastUpdated: string;
+  lastUpdated: string | null;
 }
 
 export function Settings() {
@@ -53,13 +53,15 @@ export function Settings() {
   async function handleAboutSubmit(formData: FormData) {
     setIsLoading(true);
     try {
-      const data = {
-        id: Number(formData.get('id')),
-        title: formData.get('title') as string,
-        content: formData.get('content') as string,
-        profileImage: formData.get('profileImage') as string,
-        metaDescription: formData.get('metaDescription') as string,
-      };
+      if (aboutData) {
+        const data = {
+          id: aboutData.id,
+          title: formData.get('title') as string,
+          content: formData.get('content') as string,
+          profileImage: formData.get('profileImage') as string,
+          metaDescription: formData.get('metaDescription') as string,
+          lastUpdated: new Date().toISOString(),
+        };
 
       const success = await updateAboutPage(data);
       
@@ -72,6 +74,9 @@ export function Settings() {
         title: "Success",
         description: "About page updated successfully",
       });
+    } else {
+      throw new Error('About data not found');
+    }
     } catch (error) {
       toast({
         title: "Error",
@@ -85,13 +90,15 @@ export function Settings() {
   async function handleContactSubmit(formData: FormData) {
     setIsLoading(true);
     try {
-      const data = {
-        id: Number(formData.get('id')),
-        title: formData.get('title') as string,
-        content: formData.get('content') as string,
-        emailAddress: formData.get('emailAddress') as string,
-        socialLinks: formData.get('socialLinks') as string,
+      if (contactData) {
+        const data = {
+          id: contactData.id,
+          title: formData.get('title') as string,
+          content: formData.get('content') as string,
+          emailAddress: formData.get('emailAddress') as string,
+          socialLinks: formData.get('socialLinks') as string,
         metaDescription: formData.get('metaDescription') as string,
+        lastUpdated: new Date().toISOString(),
       };
 
       const success = await updateContactPage(data);
@@ -105,6 +112,9 @@ export function Settings() {
         title: "Success",
         description: "Contact page updated successfully",
       });
+    } else {
+      throw new Error('Contact data not found');
+    }
     } catch (error) {
       toast({
         title: "Error",
@@ -143,7 +153,7 @@ export function Settings() {
                 <Input
                   id="about-title"
                   name="title"
-                  defaultValue={aboutData.title}
+                  defaultValue={aboutData.title || ''}
                   required
                 />
               </div>
@@ -227,7 +237,7 @@ export function Settings() {
                 <Input
                   id="contact-title"
                   name="title"
-                  defaultValue={contactData.title}
+                  defaultValue={contactData.title || ''}
                   required
                 />
               </div>
@@ -250,7 +260,6 @@ export function Settings() {
                   name="emailAddress"
                   type="email"
                   defaultValue={contactData.emailAddress || ''}
-                  required
                 />
               </div>
               
