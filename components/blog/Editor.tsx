@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import { useUser } from '@/lib/auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -92,11 +92,12 @@ export function ImageLoader({ article, newImageGenerationRequestId, stagedImageU
 }
 
 
-export default function ArticleEditor({ params }: { params: { slug: string } }) {
+
+export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
   const { toast } = useToast()
   const router = useRouter();
   const { user } = useUser();
-  const isNew = params.slug === 'new';
+  const slug = router.query.slug as string;
   const [isLoading, setIsLoading] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
   const [newImageGenerationRequestId, setNewImageGenerationRequestId] = useState<string | null>(null);
@@ -127,8 +128,8 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
         return;
       }
 
-      if (params.slug) {
-        const article = await getArticle(params.slug);
+      if (slug) {
+        const article = await getArticle(slug);
         if (article) {
           setArticle(article);
           console.log("is draft", article.isDraft);
@@ -141,7 +142,7 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
       }
     }
     fetchArticle();
-  }, [params.slug, setValue, isNew]);
+  }, [slug, setValue, isNew]);
 
   const onSubmit = async (data: ArticleFormData) => {
     if (!user) {
@@ -164,7 +165,7 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
         router.push(`/dashboard/blog`);
       } else {
         await updateArticle({
-          slug: params.slug,
+          slug: slug,
           title: data.title,
           content: data.content,
           image: data.image,
@@ -198,7 +199,7 @@ export default function ArticleEditor({ params }: { params: { slug: string } }) 
             <div>
               <div className='flex items-center justify-between gap-2 my-4'>
                 <label className="block text-sm font-medium leading-6 text-gray-900 dark:text-white">Title</label>
-                <Link href={`/blog/${params.slug}${article?.isDraft ? '?previewDraft=true' : ''}`} target="_blank" className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
+                <Link href={`/blog/${slug}${article?.isDraft ? '?previewDraft=true' : ''}`} target="_blank" className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
                   See Article <ExternalLinkIcon className="w-4 h-4" />
                 </Link>
               </div>

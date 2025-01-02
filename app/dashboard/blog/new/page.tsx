@@ -10,9 +10,7 @@ export default async function NewArticlePage() {
     redirect('/login');
   }
 
-  const slug = 'new';
-
   return (
-    <ArticleEditor params={{ slug: slug }} />
+    <ArticleEditor isNew={true} />
   );
 }

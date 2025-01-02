@@ -1,7 +1,7 @@
 'use client'
 
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { notFound, redirect, useParams } from 'next/navigation';
+import { redirect, useParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { marked, Token } from 'marked';
 import { Card, CardContent, CardFooter } from "@/components/ui/card"

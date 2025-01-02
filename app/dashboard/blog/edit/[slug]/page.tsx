@@ -4,15 +4,15 @@ import ArticleEditor from '@/components/blog/Editor';
 import { getUser } from '@/db/queries';
 import { redirect } from 'next/navigation';
 
-export default async function EditArticlePage({ params }: { params: { slug: string } }) {
+export default async function EditArticlePage() {
   const user = await getUser();
+
   if (!user) {
     redirect('/login');
   }
 
-  const data = params;
 
   return (
-    <ArticleEditor params={{ slug: data.slug }} />
+    <ArticleEditor />
   );
 }
