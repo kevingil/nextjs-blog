@@ -9,6 +9,7 @@ html {
 /* *=========== Orange theme =========== */
 @layer base {
   :root {
+    --body-background: white !important;
     --background: 0 0% 100%;
     --foreground: 20 14.3% 4.1%;
 
@@ -43,6 +44,7 @@ html {
   }
 
   .dark {
+    --body-background: #0c0a09 !important;
     --background: 20 14.3% 4.1%;
     --foreground: 60 9.1% 97.8%;
 
@@ -88,10 +90,17 @@ html {
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
   }
+}
+
+body {
+  background: var(--body-background);
+}
+
+.body-background {
+  background: var(--body-background);
 }
 
 code {

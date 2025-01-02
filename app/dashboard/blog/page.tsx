@@ -75,20 +75,18 @@ export default function ArticlesPage() {
   return (
     <Drawer>
     <section className="flex-1 p-0 md:p-4">
-      <h1 className="text-lg lg:text-2xl font-medium text-gray-900 dark:text-white mb-6">
-        Articles
-      </h1>
-
-      <Card>
-        <CardContent>
-          <div className="flex justify-end items-center py-4 gap-4">
-              <DrawerTrigger asChild>
-                <Button >
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Generate
-                </Button>
-              </DrawerTrigger>
-              <DrawerContent className="w-full max-w-3xl mx-auto">
+        <div className="flex justify-between items-center">
+          <h1 className="text-lg lg:text-2xl font-medium text-gray-900 dark:text-white mb-6">
+            Articles
+          </h1>
+          <div className="flex justify-end items-center mb-6 gap-4">
+            <DrawerTrigger asChild>
+              <Button >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate
+              </Button>
+            </DrawerTrigger>
+            <DrawerContent className="w-full max-w-3xl mx-auto">
               <DrawerHeader>
                 <DrawerTitle>Generate Article</DrawerTitle>
               </DrawerHeader>
@@ -96,7 +94,8 @@ export default function ArticlesPage() {
               {/* Example of a simple form approach */}
               <form onSubmit={handleGenerate} className="space-y-4 px-4 pb-4">
                 <div>
-                  <label htmlFor="title" className="block text-sm font-medium mb-2">
+                  <p className="pb-4 text-gray-500 text-[0.9rem]">Both the title and prompt will be used to generate the article</p>
+                  <label htmlFor="title" className="block font-bold text-gray-500 text-sm mb-2">
                     Title
                   </label>
                   <Input
@@ -110,7 +109,7 @@ export default function ArticlesPage() {
                 </div>
 
                 <div>
-                  <label htmlFor="prompt" className="block text-sm font-medium mb-2">
+                  <label htmlFor="prompt" className="block font-bold text-gray-500 text-sm mb-2">
                     Prompt
                   </label>
                   <Textarea
@@ -124,14 +123,16 @@ export default function ArticlesPage() {
                 </div>
 
                 <DrawerFooter>
-                  <Button type="submit" disabled={isGenerating}>
-                    {isGenerating ? "Generating..." : "Generate"}
-                  </Button>
+                  <div className="w-full flex justify-end items-center gap-4">
                   <DrawerClose asChild>
-                    <Button variant="outline" type="button">
+                    <Button className="w-full" variant="outline" type="button">
                       Cancel
                     </Button>
                   </DrawerClose>
+                  <Button className="w-full" type="submit" disabled={isGenerating}>
+                    {isGenerating ? "Generating..." : "Generate"}
+                  </Button>
+                  </div>
                 </DrawerFooter>
               </form>
             </DrawerContent>
@@ -142,6 +143,10 @@ export default function ArticlesPage() {
               </Button>
             </Link>
           </div>
+        </div>
+
+      <Card>
+        <CardContent>
           <Table className="mt-4">
             <TableHeader>
               <TableRow>

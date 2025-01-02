@@ -23,7 +23,7 @@ export default function Aurora() {
 
 
     return (
-    <div className={`fixed top-0 left-0 w-full h-full`}>
+    <div className={`fixed top-0 left-0 w-full h-full body-background`}>
     <AuroraBackground className={` ${dimmed ? 'opacity-20' : 'opacity-100'} animate-opacity`}>
       <motion.div
         initial={{ opacity: 0.0, y: 40 }}

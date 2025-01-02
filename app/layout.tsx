@@ -33,13 +33,11 @@ export default async function RootLayout({
   return (
     <html
       lang="en" suppressHydrationWarning
-      className={`bg-white dark:bg-gray-950 text-black dark:text-white ${manrope.className}`}
+      className={`text-black dark:text-white ${manrope.className}`}
     >
       <body className="min-h-[100dvh] flex flex-col relative">
 
         <UserProvider userPromise={userPromise}>
-
-
           <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -55,9 +53,8 @@ export default async function RootLayout({
 
               <FooterSection />
           </ThemeProvider>
-
         </UserProvider>
-
+        
       </body>
     </html>
   );

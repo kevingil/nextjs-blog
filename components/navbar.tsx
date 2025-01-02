@@ -81,7 +81,7 @@ export const Navbar = () => {
   }
   return (
     <header className="shadow-nav border backdrop-blur-xl w-[95%] max-w-6xl top-2 mx-auto
-      sticky border border-indigo-600/10 dark:border-indigo-600/10 z-50 rounded-2xl flex justify-between items-center p-4 bg-card/50 dark:bg-stone-800/40 mb-12">
+      sticky border border-indigo-600/10 dark:border-indigo-600/10 z-10 rounded-2xl flex justify-between items-center p-4 bg-card/50 dark:bg-stone-800/40 mb-12">
       <Link href="/" className="flex items-center">
         <span className={poppins.className + ' text-xl'}>{title}</span>
       </Link>
