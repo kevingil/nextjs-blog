@@ -255,6 +255,9 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
         </div>
       )}
 
+
+    <div ref={containerRef} className={`${animate ? 'animate-card-home' : 'hide-card-home'}`}>
+
       {!pagination && (
         <div className="flex justify-between p-4 items-center">
           <h2 className="font-semibold text-muted-foreground">
@@ -268,7 +271,6 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
         </div>
       )}
 
-      <div ref={containerRef} className={`${animate ? 'animate-card-home' : 'hide-card-home'}`}>
       {loading ? (
         <ArticlesSkeleton />
       ) : articles.length === 0 ? (

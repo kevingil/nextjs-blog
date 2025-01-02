@@ -32,6 +32,12 @@ const characterVariants: Variants = {
 
 // Blur and fade in from the bottom with delay
 function AnimatedText({ text }: { text: string }) {
+  const characters: string[] = [];
+  
+  for (const char of text) {
+    characters.push(char);
+  }
+  
   return (
     <motion.div
       variants={containerVariants}
@@ -39,7 +45,7 @@ function AnimatedText({ text }: { text: string }) {
       animate="visible"
       className="inline-flex flex-wrap"
     >
-      {text.split('').map((char, index) => (
+      {characters.map((char, index) => (
         <motion.span
           key={`${char}-${index}`}
           variants={characterVariants}
@@ -49,7 +55,7 @@ function AnimatedText({ text }: { text: string }) {
         </motion.span>
       ))}
     </motion.div>
-  )
+  );
 }
 
 // Basic animate from bottom
@@ -77,10 +83,10 @@ export const HeroSection = () => {
     <section id="hero" className="container py-32 pb-48 mx-auto relative z-10">
       <div className="flex flex-col gap-0 px-4">
           <h1 className={'text-xl sm:text-2xl tracking-tight'}>
-          <AnimatedText text="Software Engineer in San Francisco" />
+          <AnimatedText text="Hi, I'm Kevin 👋" />
           </h1>
           <p className="max-w-[600px] text-muted-foreground text-sm sm:text-md tracking-tight">
-            <BasicAnimatedText text="I build and design software for the web, cloud, and beyond" />
+            <BasicAnimatedText text="Software Engineer based in San Francisco" />
           </p>
       </div>
     </section>
