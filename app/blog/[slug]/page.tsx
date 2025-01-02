@@ -11,6 +11,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ArticleData, getArticleData, getRecommendedArticles, RecommendedArticle } from '@/app/dashboard/blog/actions';
 import { useSearchParams } from 'next/navigation';
 import hljs from 'highlight.js';
+import { Analytics } from '@vercel/analytics/react';
+import type { BeforeSendEvent } from '@vercel/analytics/react';
 
 function ArticleSkeleton() {
   return (
@@ -126,6 +128,14 @@ export default function Page() {
           <RecommendedArticles slug={slug as string} articleData={articleData} />
         </Suspense>
       </section>
+      <Analytics
+        beforeSend={(event: BeforeSendEvent) => {
+          if (event.url.includes('previewDraft')) {
+            return null;
+          }
+          return event;
+        }}
+      />
     </div>
   );
 }

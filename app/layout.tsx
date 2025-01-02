@@ -1,4 +1,3 @@
-
 import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Manrope } from 'next/font/google';
@@ -9,6 +8,9 @@ import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/home/theme-provider";
 import Aurora from "@/components/home/aurora";
 import 'highlight.js/styles/base16/snazzy.css';
+import { Analytics } from '@vercel/analytics/react';
+import type { BeforeSendEvent } from '@vercel/analytics/react';
+
 
 
 export const metadata: Metadata = {
@@ -36,7 +38,6 @@ export default async function RootLayout({
       className={`text-black dark:text-white ${manrope.className}`}
     >
       <body className="min-h-[100dvh] flex flex-col relative">
-
         <UserProvider userPromise={userPromise}>
           <ThemeProvider
             attribute="class"
@@ -44,17 +45,17 @@ export default async function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
-              <Navbar />
+            <Navbar />
 
-              <Aurora />
-              <main className="w-full max-w-6xl mx-auto px-2 sm:px-6 z-[1]" data-vaul-drawer-wrapper="">
-                {children}
-              </main>
+            <Aurora />
+            <main className="w-full max-w-6xl mx-auto px-2 sm:px-6 z-[1]" data-vaul-drawer-wrapper="">
+              {children}
+            </main>
 
-              <FooterSection />
+            <FooterSection />
           </ThemeProvider>
         </UserProvider>
-        
+
       </body>
     </html>
   );

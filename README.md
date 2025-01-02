@@ -58,7 +58,11 @@ You can, of course, create new users as well through `/sign-up`.
 Finally, run the Next.js development server:
 
 ```bash
+#dev
 pnpm dev
+#build cmd
+pnpm build
+
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.

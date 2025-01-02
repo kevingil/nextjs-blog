@@ -4,6 +4,8 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { Analytics } from '@vercel/analytics/react';
+import type { BeforeSendEvent } from '@vercel/analytics/react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,7 +90,17 @@ export default function DashboardLayout({
         </aside>
 
         {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-0">{children}</main>
+        <main className="flex-1 overflow-y-auto p-0">
+          {children}
+          <Analytics
+            beforeSend={(event: BeforeSendEvent) => {
+              if (event.url.includes('/dashboard')) {
+                return null;
+              }
+              return event;
+            }}
+          />
+          </main>
       </div>
     </div>
   );
