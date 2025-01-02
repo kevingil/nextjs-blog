@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/router';
+import { useParams, useRouter } from 'next/navigation';
 import { useUser } from '@/lib/auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -97,7 +97,7 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
   const { toast } = useToast()
   const router = useRouter();
   const { user } = useUser();
-  const slug = router.query.slug as string;
+  const { slug } = useParams();
   const [isLoading, setIsLoading] = useState(false);
   const [article, setArticle] = useState<Article | null>(null);
   const [newImageGenerationRequestId, setNewImageGenerationRequestId] = useState<string | null>(null);
@@ -129,7 +129,7 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
       }
 
       if (slug) {
-        const article = await getArticle(slug);
+        const article = await getArticle(slug as string);
         if (article) {
           setArticle(article);
           console.log("is draft", article.isDraft);
@@ -165,7 +165,7 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
         router.push(`/dashboard/blog`);
       } else {
         await updateArticle({
-          slug: slug,
+          slug: slug as string,
           title: data.title,
           content: data.content,
           image: data.image,
