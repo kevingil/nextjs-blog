@@ -8,8 +8,6 @@ import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/home/theme-provider";
 import Aurora from "@/components/home/aurora";
 import 'highlight.js/styles/base16/snazzy.css';
-import { Analytics } from '@vercel/analytics/react';
-import type { BeforeSendEvent } from '@vercel/analytics/react';
 
 
 

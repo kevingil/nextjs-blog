@@ -1,10 +1,10 @@
 CREATE TABLE `about_page` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`title` text NOT NULL,
-	`content` text NOT NULL,
+	`title` text,
+	`content` text,
 	`profile_image` text,
 	`meta_description` text,
-	`last_updated` text NOT NULL
+	`last_updated` text
 );
 --> statement-breakpoint
 CREATE TABLE `article_tags` (
@@ -26,18 +26,30 @@ CREATE TABLE `articles` (
 	`updated_at` integer DEFAULT (unixepoch()) NOT NULL,
 	`is_draft` integer DEFAULT false NOT NULL,
 	`embedding` F32_BLOB(1536),
+	`image_generation_request_id` text,
 	FOREIGN KEY (`author`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `articles_slug_unique` ON `articles` (`slug`);--> statement-breakpoint
 CREATE TABLE `contact_page` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`title` text NOT NULL,
-	`content` text NOT NULL,
-	`email_address` text NOT NULL,
+	`title` text,
+	`content` text,
+	`email_address` text,
 	`social_links` text,
 	`meta_description` text,
-	`last_updated` text NOT NULL
+	`last_updated` text
+);
+--> statement-breakpoint
+CREATE TABLE `image_generation` (
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`prompt` text,
+	`provider` text,
+	`model` text,
+	`request_id` text,
+	`output_url` text,
+	`storage_key` text,
+	`created_at` integer DEFAULT (unixepoch()) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `projects` (
