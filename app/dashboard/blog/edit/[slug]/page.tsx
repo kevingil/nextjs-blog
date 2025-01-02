@@ -10,7 +10,7 @@ export default async function EditArticlePage({ params }: { params: { slug: stri
     redirect('/login');
   }
 
-  const data = await params;
+  const data = params;
 
   return (
     <ArticleEditor params={{ slug: data.slug }} />
