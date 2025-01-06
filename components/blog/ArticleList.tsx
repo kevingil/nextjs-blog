@@ -292,9 +292,19 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
                     <div className="flex items-center mb-4">
                       <span className="text-sm text-muted-foreground">{article.author}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      {markdownToPlainText(article.content?.substring(0, 160) || '' )}
-                    </p>
+                    <div className="flex items-center mb-4 gap-2">
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {markdownToPlainText(article.content?.substring(0, 160) || '' )}
+                      </p>
+                      <div className='items-start flex sm:hidden w-full min-w-[40%]'>
+                        {article.image !== null && article.image !== '' ? (
+                          <img src={article.image} alt={article.title ? article.title : ''}
+                            className="rounded-lg object-cover aspect-square h-full w-full bg-gray-300/10 dark:bg-gray-100/10" />
+                        ) : (
+                          <ImageIcon className='h-2/3 w-full text-zinc-200 dark:text-zinc-600' />
+                        )}
+                      </div>
+                    </div>
                     <p className="text-sm text-muted-foreground mb-4">
                       {format(new Date(article.createdAt), 'MMMM d, yyyy')}
                     </p>
@@ -304,7 +314,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
                       ))}
                     </div>
                   </div>
-                  <div className='w-1/3 p-4 flex items-center'>
+                  <div className='max-w-[30%] p-4 items-center hidden sm:flex aspect-square'>
                     {article.image !== null && article.image !== '' ? (
                       <img src={article.image} alt={article.title ? article.title : ''}
                         className="rounded-lg object-cover h-full w-full bg-gray-300/10 dark:bg-gray-100/10" />
