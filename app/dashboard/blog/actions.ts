@@ -8,6 +8,7 @@ export type ArticleRow = {
   id: number
   title: string | null
   createdAt: number
+  publishedAt: number | null
   isDraft: boolean  
   slug: string | null
   tags: string[]  
@@ -32,6 +33,7 @@ export type RecommendedArticle = {
   title: string,
   slug: string,
   image: string | null,
+  publishedAt: number | null,
   createdAt: number,
   author: string | null,
 }
@@ -87,6 +89,7 @@ export async function getRecommendedArticles(currentArticleId: number): Promise<
       slug: articles.slug,
       image: articles.image,
       createdAt: articles.createdAt,
+      publishedAt: articles.publishedAt,
       author: users.name,
       isDraft: articles.isDraft
     })
@@ -102,6 +105,7 @@ export async function getArticles(): Promise<ArticleRow[]> {
       id: articles.id,
       title: articles.title,
       createdAt: articles.createdAt,
+      publishedAt: articles.publishedAt,
       isDraft: articles.isDraft,
       slug: articles.slug,
       tags: sql<string>`group_concat(${tags.name}, ',')`
@@ -110,7 +114,7 @@ export async function getArticles(): Promise<ArticleRow[]> {
     .leftJoin(articleTags, eq(articles.id, articleTags.articleId))
     .leftJoin(tags, eq(articleTags.tagId, tags.id))
     .groupBy(articles.id)
-    .orderBy(desc(articles.createdAt))
+    .orderBy(desc(articles.publishedAt), desc(articles.createdAt))
     .all()
 
   return articlesWithTags.map(article => ({

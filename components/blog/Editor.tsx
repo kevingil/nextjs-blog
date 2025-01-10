@@ -6,11 +6,21 @@ import { useUser } from '@/lib/auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { format } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+ 
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { useToast } from "@/hooks/use-toast";
+import { cn } from '@/lib/utils';
 import { updateArticle, getArticle, createArticle } from './actions';
 import Link from 'next/link';
 import { Article, ImageGeneration } from '@/db/schema';
@@ -171,6 +181,7 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
           image: data.image,
           tags: data.tags.split(',').map(tag => tag.trim()),
           isDraft: data.isDraft,
+          publishedAt: article?.publishedAt || new Date().getTime(),
         });
         toast({ title: "Success", description: "Article updated successfully." });
         router.push(`/dashboard/blog`);
@@ -294,6 +305,7 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
               {errors.tags && <p className="text-red-500">{errors.tags.message}</p>}
             </div>
             <div className='flex items-center gap-2 py-2'>
+              <div>
               <label htmlFor="isDraft">Published </label>
               <Switch {...register('isDraft')} checked={!article?.isDraft} onCheckedChange={(checked) => {
                 if (article) {
@@ -301,6 +313,38 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
                 }
                 setValue('isDraft', !checked);
               }} />
+            </div>
+            <div>
+              <div>
+                <label htmlFor="publishedAt">Published Date</label>
+              </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-[280px] justify-start text-left font-normal",
+                    !article?.publishedAt && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {article?.publishedAt ? format(article.publishedAt, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0">
+                <Calendar
+                  mode="single"
+                  selected={article?.publishedAt ? new Date(article.publishedAt) : undefined}
+                  onSelect={(date) => {
+                    if (article) {
+                      setArticle({ ...article, publishedAt: date?.getTime() || 0 });
+                    }
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            </div>
             </div>
           </CardContent>
           <CardFooter className="flex justify-between">

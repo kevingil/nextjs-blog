@@ -71,31 +71,8 @@ export default function Page() {
 
   // Intersection Observer
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        console.log("entry.isIntersecting", entry.isIntersecting);
-        if (entry.isIntersecting) {
-          setAnimate(true);
-          observer.unobserve(entry.target); 
-        }
-      },
-      {
-        threshold: 0.1, 
-      }
-    );
-
-    if (articleRef.current) {
-      console.log("articleRef.current", articleRef.current);
-      observer.observe(articleRef.current);
-    }
-
-    return () => {
-      // Clean up on unmount
-      if (observer && articleRef.current) {
-        console.log("observer.unobserve(articleRef.current)");
-        observer.unobserve(articleRef.current);
-      }
-    };
+    setAnimate(true);
+    window.scrollTo(0, 0);
   }, []);
 
   useEffect(() => {
@@ -171,7 +148,7 @@ export default function Page() {
         <div>
           <p className="font-semibold">{articleData?.author_name}</p>
           <p className="text-sm text-muted-foreground">
-            { content?.createdAt ? format(new Date(content?.createdAt), 'MMMM d, yyyy') : 'Unknown'}
+            { content?.publishedAt ? format(new Date(content?.publishedAt), 'MMMM d, yyyy') : 'Unknown'}
           </p>
         </div>
       </div>
@@ -223,7 +200,7 @@ function RecommendedArticles({ slug, articleData }: { slug: string, articleData:
           <CardContent className="p-4">
             <h3 className="text-lg font-semibold mb-2">{article.title}</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              {article.createdAt ? format(new Date(article.createdAt), 'MMMM d, yyyy') : 'Unknown'}
+              {article.publishedAt ? format(new Date(article.publishedAt), 'MMMM d, yyyy') : 'Unknown'}
             </p>
           </CardContent>
         </Card>

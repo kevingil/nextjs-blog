@@ -6,6 +6,7 @@ export type ArticleListItem = {
   title: string | null;
   slug: string | null;
   createdAt: number;
+  publishedAt: number | null;
   image: string | null;
   content: string | null;
   author: string | null;

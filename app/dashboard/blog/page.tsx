@@ -152,7 +152,8 @@ export default function ArticlesPage() {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Tags</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead>Created</TableHead>
+                <TableHead>Published</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -165,6 +166,7 @@ export default function ArticlesPage() {
                   </TableCell>
                   <TableCell>{article.tags.join(', ')}</TableCell>
                   <TableCell>{new Date(article.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>{article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Unknown'}</TableCell>
                   <TableCell>{article.isDraft ? 'Draft' : 'Published'}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>

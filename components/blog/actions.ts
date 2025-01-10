@@ -97,6 +97,7 @@ export async function updateArticle({
   image,
   tags: newTags,
   isDraft,
+  publishedAt,
 }: {
   slug: string;
   title: string;
@@ -104,6 +105,7 @@ export async function updateArticle({
   image?: string;
   tags: string[];
   isDraft: boolean;
+  publishedAt: number;
 }) {
 
   // Get the article
@@ -112,6 +114,15 @@ export async function updateArticle({
     throw new Error('Article not found');
   }
   const articleId = article[0].id;
+
+  // Update published if changed from draft to published
+  // and if the publishedAt wasn't set, then set it to the current time
+  const publishedAtCheck = 
+  isDraft != true
+  ?((article[0].isDraft == true) && (isDraft == false) && (article[0].publishedAt == publishedAt))
+  ? new Date().getTime() 
+  : publishedAt
+  : null;
 
 
   // If slug is changed, check if it already exists, if so, add random number to make it unique
@@ -136,7 +147,8 @@ export async function updateArticle({
     content: content, 
     image: image, 
     isDraft: isDraft,
-    updatedAt: new Date().getTime()
+    updatedAt: new Date().getTime(),
+    publishedAt: publishedAtCheck,
   }).where(eq(articles.id, articleId));
 
   // Delete existing tags

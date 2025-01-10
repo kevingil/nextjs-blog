@@ -184,32 +184,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
 
   // Intersection Observer
   useEffect(() => {
-    console.log("useEffect containerRef.current", containerRef.current);
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        console.log("entry.isIntersecting", entry.isIntersecting);
-        if (entry.isIntersecting) {
-          setAnimate(true);
-          observer.unobserve(entry.target); 
-        }
-      },
-      {
-        threshold: 0.1, 
-      }
-    );
-
-    if (containerRef.current) {
-      console.log("containerRef.current", containerRef.current);
-      observer.observe(containerRef.current);
-    }
-
-    return () => {
-      // Clean up on unmount
-      if (observer && containerRef.current) {
-        console.log("observer.unobserve(containerRef.current)");
-        observer.unobserve(containerRef.current);
-      }
-    };
+    setAnimate(true);
   }, []);
 
   const markdownToPlainText = (markdown: string) => {
@@ -306,7 +281,7 @@ export default function ArticlesList({ pagination }: ArticleListProps) {
                       </div>
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">
-                      {format(new Date(article.createdAt), 'MMMM d, yyyy')}
+                      {article.publishedAt ? format(new Date(article.publishedAt), 'MMMM d, yyyy') : 'Unknown'}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {article.tags.map((tag) => (

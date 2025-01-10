@@ -39,6 +39,7 @@ export async function getArticles(page: number, tag: string | null = null): Prom
       image: articles.image,
       content: articles.content,
       createdAt: articles.createdAt,
+      publishedAt: articles.publishedAt,
       author: users.name,
     })
     .from(articles)
@@ -48,7 +49,7 @@ export async function getArticles(page: number, tag: string | null = null): Prom
     .groupBy(articles.id)
     .limit(ITEMS_PER_PAGE)
     .offset(offset)
-    .orderBy(desc(articles.createdAt));
+    .orderBy(desc(articles.publishedAt));
 
   // For pagination
   const totalArticlesResult = await db
@@ -116,6 +117,7 @@ export async function searchArticles(
       image: articles.image,
       content: articles.content,
       createdAt: articles.createdAt,
+      publishedAt: articles.publishedAt,
       author: users.name,
     })
     .from(articles)
@@ -126,7 +128,7 @@ export async function searchArticles(
         inArray(articles.id, Array.from(searchResults))
       )
     )
-    .orderBy(desc(articles.createdAt))
+    .orderBy(desc(articles.publishedAt))
     .limit(ITEMS_PER_PAGE)
     .offset(offset);
 
