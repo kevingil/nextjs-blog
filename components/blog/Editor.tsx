@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
+import { Calendar as CalendarIcon, PencilIcon } from "lucide-react"
  
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,13 @@ import { SparklesIcon } from 'lucide-react';
 import { Dialog, DialogTitle, DialogContent, DialogTrigger, DialogDescription, DialogFooter, DialogHeader, DialogClose } from '@/components/ui/dialog';
 import { DEFAULT_IMAGE_PROMPT } from '@/lib/images/const';
 import { generateArticleImage, getImageGeneration, getImageGenerationStatus } from '@/lib/images/generation';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 const articleSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -235,7 +242,7 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
                 <Dialog open={generateImageOpen} onOpenChange={setGenerateImageOpen}>
                   <DialogTrigger asChild>
                     <Button variant="outline">
-                      <SparklesIcon className="w-4 h-4 text-indigo-500" />
+                      <PencilIcon className="w-4 h-4 text-indigo-500" /> Edit Prompt
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[600px]">
@@ -275,7 +282,26 @@ export default function ArticleEditor({ isNew }: { isNew?: boolean }) {
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
+                <div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      console.log("image prompt", imagePrompt);
+                      const result = await generateArticleImage(article?.title || "", article?.id, true);
 
+                      if (result.success) {
+                        setNewImageGenerationRequestId(result.generationRequestId);
+                        toast({ title: "Success", description: "Image generated successfully." });
+                      } else {
+                        toast({ title: "Error", description: "Failed to generate image. Please try again." });
+                      }
+                    }}>
+                    <SparklesIcon className="w-4 h-4 text-indigo-500" />
+                  </Button>
+                </div>
+                
               </div>
             </div>
             <div>

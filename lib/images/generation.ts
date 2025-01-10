@@ -5,12 +5,19 @@ import { articles, imageGeneration } from "@/db/schema";
 import { fal } from "@fal-ai/client";
 import { eq } from "drizzle-orm";
 import { uploadFile } from "@/lib/storage";
+import { PROMPT_GENERATION_PROMPT } from "./const";
+import { ChatOpenAI } from "@langchain/openai";
+import { HumanMessage } from "@langchain/core/messages";
 
 fal.config({
   credentials: process.env.FAL_KEY,
 });
 
-export async function generateArticleImage(prompt: string, articleId: number | undefined): Promise<{ 
+export async function generateArticleImage(
+  prompt: string | undefined, 
+  articleId: number | undefined,
+  generatePrompt: boolean = false,
+): Promise<{ 
   success: boolean, 
   generationRequestId: string,
 }> {
@@ -19,11 +26,31 @@ export async function generateArticleImage(prompt: string, articleId: number | u
     return { success: false, generationRequestId: "" };
   }
 
+  let finalPrompt = prompt;
+
+  if (generatePrompt) {
+    const promptGenPrompt = PROMPT_GENERATION_PROMPT + "\n\n" + prompt;
+    const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+    const model = new ChatOpenAI({
+      modelName: "gpt-4o",
+      temperature: 0.7,
+      openAIApiKey: OPENAI_API_KEY,
+    });
+
+    const messages = [
+      new HumanMessage(promptGenPrompt),
+    ];
+
+    const response = await model.invoke(messages);
+    console.log(response.content);
+    finalPrompt = response.content as string;
+  }
+
   try {
 
     const falSubscription = await fal.subscribe("fal-ai/flux/dev", {
       input: {
-        prompt: prompt,
+        prompt: finalPrompt || "",
         image_size: "landscape_16_9",
         num_images: 1,
       },
