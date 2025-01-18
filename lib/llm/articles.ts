@@ -1,12 +1,13 @@
 'use server'
 import { ChatOpenAI } from "@langchain/openai";
+import { ChatGroq } from "@langchain/groq";
 import { BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { StateGraph } from "@langchain/langgraph";
 import { MemorySaver, Annotation, messagesStateReducer } from "@langchain/langgraph";
 import { createArticle } from "@/components/blog/actions";
 import { generateArticleImage } from "../images/generation";
 import { DEFAULT_IMAGE_PROMPT } from "../images/const";
-
+import { getArticles } from "@/components/blog/search";
 // Store an array of messages in state
 const StateAnnotation = Annotation.Root({
   messages: Annotation<BaseMessage[]>({
@@ -14,24 +15,32 @@ const StateAnnotation = Annotation.Root({
   }),
 });
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const model = new ChatOpenAI({
-  modelName: "gpt-4o",
+const GROQ_KEY = process.env.GROQ_KEY;
+const model = new ChatGroq({
+  modelName: "llama-3.1-8b-instant",
   temperature: 0.7,
-  openAIApiKey: OPENAI_API_KEY,
+  apiKey: GROQ_KEY,
 });
+
+// Langraph Notes:
+// For groq, we need to specify the message in the array of messages in the graph state
+// For openai, we can just pass the messages array
 
 // Original writer node
 async function originalWriterCall(state: typeof StateAnnotation.State) {
-  const messages = state.messages;
+  const messages = state.messages.slice(0, 2); // Only take system and user messages for writer
   const response = await model.invoke(messages);
   return { messages: [response] };
 }
 
 // Editor node
 async function editorCall(state: typeof StateAnnotation.State) {
-  const messages = state.messages;
-  const response = await model.invoke(messages);
+  const previousContent = state.messages[state.messages.length - 1].content;
+  const editorMessages = [
+    state.messages[2], // editor system message
+    new HumanMessage(previousContent.toString()) // previous content as input
+  ];
+  const response = await model.invoke(editorMessages);
   return { messages: [response] };
 }
 
@@ -47,26 +56,41 @@ const checkpointer = new MemorySaver();
 const app = workflow.compile({ checkpointer });
 
 export async function generateArticle(prompt: string, title: string, authorId: number) {
+
+
+  // Get writing context from the database
+  const articles = await getArticles(1, null);
+  const writingContext = articles.articles.map(article => 
+    article?.content?.substring(0, 300).replace(/[#*`_]/g, '')
+  ).join("\n\n");
+
+  console.log("Writing Context:")
+  console.log(writingContext)
+
+
   // Construct two calls:
   // First for the "originalWriter" node (system instructs to write a draft),
   // then for the "editor" node (system instructs to refine it).
 
   // Messages for the original writer
   const originalWriterSystem = new SystemMessage(
-    "You are the Original Writer. Draft a compelling blog article based on the given prompt."
+    `You are a ghostwriter. Draft a compelling blog article based on the given prompt for the author's provider title and prompt.
+    This is what the author sounds like, these are some previous writings:
+    ${writingContext}
+    Please write a complete blog article with clear sections, engaging language, and relevant details.
+    Please consider the author's voice and style.`
   );
   const userPrompt = new HumanMessage(
-    `Prompt: ${prompt}\n\nTitle: "${title}"\n\nPlease write a complete blog article with clear sections, engaging language, and relevant details.`
+    `Prompt: ${prompt}\n\nTitle: "${title}"\n`
   );
 
   // Messages for the editor
   const editorSystem = new SystemMessage(
-    "You are the Editor. Improve and refine the previously drafted content. Make it more concise, clear, and engaging. Preserve the main idea and style, but ensure it's polished for publication."
+    `You are the Editor. Improve and refine the previously drafted content. 
+    Make it more concise, clear, and engaging but that it's following the author's voice and style
+    Make sure the article makes sense and is coherent for a human and that it's not stating the obvious.
+    Preserve the main idea and style, but ensure it's polished for publication.`
   );
-  const editorRequest = new HumanMessage(
-    "Refine the text above, correct errors, and produce the finalized version of the article."
-  );
-
   // Run the workflow
   const finalState = await app.invoke(
     {
@@ -74,7 +98,6 @@ export async function generateArticle(prompt: string, title: string, authorId: n
         originalWriterSystem,
         userPrompt,
         editorSystem,
-        editorRequest,
       ],
     },
     // Thread ID to store conversation in memory
@@ -84,6 +107,8 @@ export async function generateArticle(prompt: string, title: string, authorId: n
   // Final message from the editor node
   const finalMessages = finalState.messages;
   const finalArticleContent = finalMessages[finalMessages.length - 1].content;
+
+  console.log(finalState)
 
   // Create article from final content
   const newArticle = await createArticle({
