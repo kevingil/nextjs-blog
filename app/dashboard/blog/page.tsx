@@ -12,7 +12,9 @@ import { useEffect, useState } from 'react';
 import { getArticles, deleteArticle, ArticleRow } from './actions';
 import { generateArticle } from '@/lib/llm/articles';
 import { redirect, useRouter } from 'next/navigation';
+import { Badge } from "@/components/ui/badge"
 import { Article } from '@/db/schema';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from 'next/link';
 import {
   Drawer,
@@ -71,6 +73,65 @@ export default function ArticlesPage() {
       setIsGenerating(false);
     }
   };
+
+  function renderArticles(articles: ArticleRow[]) {
+    return (
+      <Table className="">
+        <TableHeader>
+          <TableRow>
+            <TableHead>Title</TableHead>
+            <TableHead>Tags</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+
+
+          {articles ? articles.map((article) => (
+
+            <TableRow key={article.id}>
+              <TableCell className="w-full flex flex-col gap-1">
+                <Link href={`/dashboard/blog/edit/${article.slug}`} className="text-gray-900 text-md hover:underline">{article.title}</Link>
+                <p className="text-gray-500 text-xs">Published: {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Unknown'}</p>
+                <div className="flex flex-wrap gap-2">{article.tags.map(tag => <Badge key={tag}
+              className="text-[0.6rem]" variant="outline"
+              >{tag}</Badge>)}</div>
+                
+              </TableCell>
+              <TableCell className=""><p className="text-gray-500 text-xs">Created: {new Date(article.createdAt).toLocaleDateString()}</p></TableCell>
+              <TableCell><Badge className={`text-[0.6rem] ${article.isDraft ? "bg-indigo-50" : "bg-orange-50"}`} variant="outline">{article.isDraft ? 'Draft' : 'Published'}</Badge></TableCell>
+              <TableCell className="text-right">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem asChild>
+                      <Link href={`/dashboard/blog/edit/${article.slug}`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDelete(article.id)}>
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TableCell>
+            </TableRow>
+          )) : null}
+        </TableBody>
+      </Table>
+    )
+  }
+
+
+
 
   return (
     <Drawer>
@@ -147,53 +208,18 @@ export default function ArticlesPage() {
 
       <Card>
         <CardContent>
-          <Table className="mt-4">
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Tags</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Published</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              { articles ? articles.map((article) => (
-                <TableRow key={article.id}>
-                  <TableCell className="font-medium">
-                    <Link href={`/dashboard/blog/edit/${article.slug}`} className="hover:underline">{article.title}</Link>
-                  </TableCell>
-                  <TableCell>{article.tags.join(', ')}</TableCell>
-                  <TableCell>{new Date(article.createdAt).toLocaleDateString()}</TableCell>
-                  <TableCell>{article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Unknown'}</TableCell>
-                  <TableCell>{article.isDraft ? 'Draft' : 'Published'}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/dashboard/blog/edit/${article.slug}`}>
-                            <Pencil className="mr-2 h-4 w-4" />
-                            Edit
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleDelete(article.id)}>
-                          <Trash2 className="mr-2 h-4 w-4" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              )) : null }
-            </TableBody>
-          </Table>
+        <Tabs defaultValue="published">
+          <TabsList className="mt-4">
+            <TabsTrigger value="published">Published</TabsTrigger>
+            <TabsTrigger value="drafts">Drafts</TabsTrigger>
+          </TabsList>
+          <TabsContent value="published" className="p-0 w-full">
+            {renderArticles(articles?.filter(article => article.isDraft === false) || [])}
+          </TabsContent>
+          <TabsContent value="drafts" className="p-0 w-full">
+            {renderArticles(articles?.filter(article => article.isDraft === true) || [])}
+          </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </section>

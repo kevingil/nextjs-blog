@@ -81,7 +81,7 @@ export async function generateArticle(prompt: string, title: string, authorId: n
     Please consider the author's voice and style.`
   );
   const userPrompt = new HumanMessage(
-    `Prompt: ${prompt}\n\nTitle: "${title}"\n`
+    `Title: "${title}"\nPrompt: ${prompt}`
   );
 
   // Messages for the editor
