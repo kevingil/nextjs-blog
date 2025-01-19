@@ -1,5 +1,4 @@
 'use server'
-import { ChatOpenAI } from "@langchain/openai";
 import { ChatGroq } from "@langchain/groq";
 import { BaseMessage, HumanMessage, SystemMessage } from "@langchain/core/messages";
 import { StateGraph } from "@langchain/langgraph";
@@ -55,7 +54,7 @@ const workflow = new StateGraph(StateAnnotation)
 const checkpointer = new MemorySaver();
 const app = workflow.compile({ checkpointer });
 
-export async function generateArticle(prompt: string, title: string, authorId: number) {
+export async function generateArticle(prompt: string, title: string, authorId: number, draft?: boolean) {
 
 
   // Get writing context from the database
@@ -115,7 +114,7 @@ export async function generateArticle(prompt: string, title: string, authorId: n
     title,
     content: finalArticleContent.toString(),
     tags: [],
-    isDraft: false,
+    isDraft: draft || false,
     authorId: authorId,
   });
 
