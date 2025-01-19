@@ -139,9 +139,7 @@ export default function Page() {
         <img
           src={content.image}
           alt={content.title}
-          width={800}
-          height={400}
-          className="rounded-lg mb-6 object-cover"
+          className="rounded-2xl mb-6 object-cover aspect-video"
         />
       )}
       <div className="flex items-center mb-6">
@@ -152,7 +150,8 @@ export default function Page() {
           </p>
         </div>
       </div>
-      <div className="blog-post prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: marked(content?.content || '') }} />
+      <div className="blog-post prose max-w-none mb-8" dangerouslySetInnerHTML={{ __html: marked(content?.content || '') }}
+      />
       <div className="flex flex-wrap gap-2 mb-8">
         {articleData?.tags?.map((tag) => (
           <Badge key={tag.tagId} variant="secondary" className='text-primary'>{tag.tagName}</Badge>
@@ -192,8 +191,6 @@ function RecommendedArticles({ slug, articleData }: { slug: string, articleData:
             <img
               src={article.image}
               alt={article.title}
-              width={400}
-              height={200}
               className="rounded-t-lg object-cover h-48 w-full"
             />
           )}
